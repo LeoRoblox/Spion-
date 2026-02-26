@@ -3,264 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SP♱ON | ULTIMATE DATABASE</title>
+    <title>SP♱ON DATABASE // SECURE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg: #030303;
-            --panel: #0a0a0a;
-            --accent-red: #ff3c3c;
-            --accent-blue: #0095ff;
+            --bg: #050505;
+            --accent-red: #ff0000;
+            --accent-blue: #008cff;
             --accent-purple: #9d4edd;
-            --text: #e0e0e0;
-            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
         }
 
-        * { box-sizing: border-box; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: #fff; margin: 0; overflow-x: hidden; }
 
-        /* --- ANIMATION CLASSES --- */
-        .fade-in { animation: fadeIn 0.6s forwards; }
+        /* --- ANIMATIONEN --- */
+        .fade-in { animation: fadeIn 0.5s forwards; }
         .fade-out { animation: fadeOut 0.5s forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none; } }
 
-        /* --- NAVIGATION --- */
-        nav {
-            position: fixed; top: 0; width: 100%; height: 70px;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 50px; border-bottom: 1px solid var(--border); z-index: 100;
-        }
-
+        /* --- BUTTON FILL ANIMATION --- */
         .btn-fill {
-            position: relative; padding: 10px 22px; background: transparent;
+            position: relative; padding: 12px 25px; background: transparent;
             border: 1px solid var(--border); color: white; cursor: pointer;
-            overflow: hidden; z-index: 1; font-weight: 600; text-transform: uppercase;
+            overflow: hidden; z-index: 1; font-weight: bold; text-transform: uppercase;
+            display: inline-block;
         }
         .btn-fill::before {
             content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 0;
-            z-index: -1; transition: height 0.4s ease;
+            z-index: -1; transition: height 0.4s ease-in-out;
         }
         .btn-blue::before { background: var(--accent-blue); }
         .btn-purple::before { background: var(--accent-purple); }
         .btn-red::before { background: var(--accent-red); }
+        .btn-white { border: 1px solid white; color: white; }
+        .btn-white::before { background: white; }
+        .btn-white:hover { color: black; }
+
         .btn-fill:hover::before { height: 100%; }
-        .btn-fill:hover { border-color: transparent; box-shadow: 0 0 15px rgba(255,255,255,0.1); }
+        /* Zurück-Animation nach oben beim weghovern ist im Transition-Standard enthalten */
 
         /* --- AUTH SCREEN --- */
-        #auth-overlay {
-            position: fixed; inset: 0; background: var(--bg);
-            display: flex; justify-content: center; align-items: center; z-index: 2000;
+        #auth-screen {
+            height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-        .auth-card {
-            background: var(--panel); padding: 40px; border: 1px solid var(--border);
-            width: 400px; text-align: center; border-radius: 8px;
+        .auth-box { background: var(--glass); padding: 40px; border: 1px solid var(--border); width: 400px; border-radius: 10px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: bold; }
+        .input-group input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; }
+
+        /* --- NAV & PROFILE --- */
+        nav {
+            padding: 20px 50px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8);
+        }
+        .profile-area { position: relative; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .profile-dropdown {
+            position: absolute; right: 0; top: 100%; background: #111; border: 1px solid #333;
+            padding: 10px; display: none; flex-direction: column; gap: 10px; width: 150px; z-index: 1000;
         }
 
-        /* --- DASHBOARD & SEARCH --- */
-        .content-container { padding: 100px 50px; max-width: 1400px; margin: auto; }
-        .search-wrapper { position: relative; margin-bottom: 40px; text-align: center; }
-        .search-bar {
-            width: 60%; padding: 15px 50px; background: var(--panel);
-            border: 1px solid var(--border); color: white; border-radius: 50px;
-            font-size: 16px;
+        /* --- DIENSTAUSWEIS --- */
+        .id-card {
+            width: 450px; height: 260px; background: #151515; border: 2px solid #333;
+            border-radius: 15px; position: relative; padding: 20px; overflow: hidden; margin: 20px auto;
+        }
+        .id-scanline {
+            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: white; box-shadow: 0 0 10px white; animation: scan 3s linear infinite;
+        }
+        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+        .id-photo { width: 120px; height: 150px; background: #222; border: 1px solid #444; object-fit: cover; }
+
+        /* --- CASE FRAME --- */
+        .case-frame {
+            background: #0a0a0a; border: 2px solid var(--accent-purple); padding: 30px;
+            max-width: 900px; margin: 40px auto; border-radius: 5px;
+        }
+        .stammdaten-area {
+            width: 100%; height: 200px; background: black; color: lime;
+            font-family: 'Courier New', monospace; padding: 15px; border: 1px solid #333;
+            white-space: pre; overflow: auto;
         }
 
-        /* --- CASE CARDS --- */
-        #dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }
-        .case-card {
-            background: var(--panel); border: 1px solid var(--border);
-            padding: 25px; border-radius: 4px; position: relative;
-        }
-        .case-card:hover { border-color: var(--accent-purple); transform: translateY(-5px); }
-        .case-card h2 { margin: 0 0 10px 0; font-size: 1.5em; letter-spacing: 1px; }
-        .case-teaser { 
-            font-family: 'Courier New', monospace; font-size: 0.9em; color: #777;
-            height: 80px; overflow: hidden; margin-bottom: 20px; white-space: pre-wrap;
-        }
+        /* --- ADMIN PANEL --- */
+        .admin-panel { border: 2px solid var(--accent-red); padding: 20px; background: rgba(255,0,0,0.05); margin-top: 50px; }
 
-        /* --- EMPTY STATE --- */
-        .empty-state { text-align: center; margin-top: 100px; color: #333; }
-        .empty-state i { font-size: 80px; margin-bottom: 20px; }
-
-        /* --- FULL FILE MODAL --- */
-        #file-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            z-index: 3000; display: none; padding: 50px; overflow-y: auto;
-        }
-        .modal-content { max-width: 1000px; margin: auto; background: var(--panel); padding: 40px; border: 1px solid var(--border); }
-        .ki-box { background: rgba(157, 78, 221, 0.1); border: 1px solid var(--accent-purple); padding: 20px; margin: 20px 0; border-radius: 5px; }
-
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div id="auth-overlay">
-    <div class="auth-card fade-in">
-        <h2 id="auth-status" style="color:var(--accent-red)">SECURE LOGIN</h2>
-        <div id="login-inputs">
-            <div style="text-align:left; color:var(--accent-blue); font-size:12px; margin-bottom:5px;">SPION NAME</div>
-            <input type="text" id="spion-name" style="width:100%; padding:10px; background:#000; border:1px solid #333; color:white; margin-bottom:20px;">
-            <div style="text-align:left; color:var(--accent-red); font-size:12px; margin-bottom:5px;">CODE (NUMS ONLY)</div>
-            <input type="number" id="spion-code" style="width:100%; padding:10px; background:#000; border:1px solid #333; color:white; margin-bottom:20px;">
-            <button class="btn-fill btn-purple" style="width:100%" onclick="accessSystem()">REGISTRIEREN</button>
+<div id="auth-screen">
+    <div class="auth-box fade-in">
+        <div class="input-group">
+            <label style="color: var(--accent-blue)"><i class="fas fa-user"></i> SPION NAME</label>
+            <input type="text" id="reg-name" placeholder="Name eingeben...">
         </div>
+        <div class="input-group">
+            <label style="color: var(--accent-red)"><i class="fas fa-fingerprint"></i> CODE</label>
+            <input type="number" id="reg-code" placeholder="Zahlen eingeben...">
+        </div>
+        <button id="auth-main-btn" class="btn-fill btn-purple" style="width: 100%" onclick="handleAuth()">REGISTRIEREN</button>
+        <p id="auth-toggle" style="text-align: center; font-size: 14px; cursor: pointer; margin-top: 15px;" onclick="toggleAuth()">
+            Du hast schon ein Spion Account? Hier einloggen.
+        </p>
     </div>
 </div>
 
-<nav id="main-nav" class="hidden">
-    <div style="color:var(--accent-red); font-weight:900; letter-spacing:3px;">SP♱ON</div>
-    <div>
-        <button class="btn-fill btn-blue" onclick="showPage('dashboard')">Dashboard</button>
-        <button class="btn-fill btn-purple" onclick="showPage('create')">Akte Erstellen</button>
-    </div>
-    <div style="color:var(--accent-blue)" id="user-display">Agent: -</div>
-</nav>
-
-<div class="content-container hidden" id="main-content">
-    
-    <div id="page-dashboard">
-        <div class="search-wrapper">
-            <input type="text" class="search-bar" id="search" placeholder="Akte suchen..." onkeyup="searchFiles()">
+<div id="main-ui" class="hidden">
+    <nav>
+        <div style="color: var(--accent-red); font-weight: 900; font-size: 24px;">SP♱ON</div>
+        <div style="display: flex; gap: 20px;">
+            <button class="btn-fill btn-blue" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="btn-fill btn-purple" onclick="showTab('create-case')">Akte Erstellen</button>
         </div>
-        <div id="dashboard-grid">
+        <div class="profile-area" onmouseover="showProfile(true)" onmouseout="showProfile(false)">
+            <span id="nav-user-name">NAME</span>
+            <div id="p-img-nav" style="width: 40px; height: 40px; border-radius: 50%; background: #333; background-size: cover;"></div>
+            <div class="profile-dropdown" id="p-dropdown">
+                <button class="btn-fill btn-white" onclick="openSettings()">Einstellungen</button>
+                <button class="btn-fill btn-white" onclick="openID()">Dienstausweis</button>
             </div>
-    </div>
-
-    <div id="page-create" class="hidden">
-        <h2 style="color:var(--accent-purple)">NEUE FALLAKTE ERSTELLEN</h2>
-        <input type="text" id="new-title" placeholder="FALL TITEL" style="width:100%; padding:15px; background:black; border:1px solid #333; color:white; margin-bottom:20px;">
-        <textarea id="new-data" placeholder="STAMMDATEN (ASCII Art & Text)" style="width:100%; height:300px; background:black; border:1px solid #333; color:lime; font-family:monospace; padding:20px;"></textarea>
-        <button class="btn-fill btn-red" onclick="createFile()">SPION AKTE ERSTELLEN</button>
-    </div>
-</div>
-
-<div id="file-modal" class="fade-in">
-    <div class="modal-content">
-        <button class="btn-fill btn-red" onclick="closeFile()" style="float:right">SCHLIESSEN</button>
-        <h1 id="m-title" style="color:white; font-size:40px;">-</h1>
-        <hr style="border:0; border-top:1px solid #333;">
-        <div class="ki-box">
-            <h3 style="margin-top:0"><i class="fa fa-robot"></i> KI ZUSAMMENFASSUNG</h3>
-            <p id="m-ki">Analysiere Daten...</p>
         </div>
-        <h3>STAMMDATEN</h3>
-        <pre id="m-data" style="background:#000; padding:20px; border:1px solid #222; overflow-x:auto; color:lime"></pre>
+    </nav>
+
+    <div class="container" style="padding: 50px;">
         
-        <div style="margin-top:40px;">
-            <h3><i class="fa fa-clock"></i> VERLAUF</h3>
-            <div style="border-left:2px solid var(--accent-blue); padding-left:20px;">
-                <p style="color:gray">System: Akte wurde registriert am <span id="m-date"></span></p>
+        <div id="tab-dashboard">
+            <div id="empty-msg" class="fade-in" style="text-align: center; margin-top: 100px; color: #444;">
+                <i class="fas fa-folder-open fa-5x"></i>
+                <h2>Es sind bisher keine Akte.</h2>
+            </div>
+            <div id="case-list"></div>
+        </div>
+
+        <div id="tab-create-case" class="hidden">
+            <div class="case-frame fade-in">
+                <h2 style="color: var(--accent-purple)"><i class="fas fa-file-signature"></i> NEUE FALLAKTE</h2>
+                <input type="text" id="case-title" placeholder="FALL TITEL" style="width:100%; padding:10px; margin-bottom:20px; background:black; border:1px solid #333; color:white;">
+                <label>STAMMDATEN (ASCII Art Support)</label>
+                <textarea class="stammdaten-area" id="case-stammdaten"></textarea>
+                <button class="btn-fill btn-red" style="margin-top: 20px;" onclick="saveNewCase()">SPION AKTE ERSTELLEN</button>
             </div>
         </div>
-        <button class="btn-fill btn-blue" style="margin-top:30px;"><i class="fa fa-file-pdf"></i> PDF EXPORT</button>
+
+        <div id="frame-settings" class="case-frame hidden">
+            <h3>EINSTELLUNGEN</h3>
+            <p>PROFIL BILD</p>
+            <input type="file" id="upload-p" accept="image/png, image/jpeg">
+            <p>Dienstausweis Farbe (HEX)</p>
+            <input type="color" id="id-color-picker" value="#9d4edd">
+            <button class="btn-fill btn-blue" onclick="saveSettings()">Speichern</button>
+        </div>
+
+        <div id="frame-id" class="hidden">
+            <div class="id-card" id="id-card-element">
+                <div class="id-scanline"></div>
+                <div style="display: flex; gap: 20px;">
+                    <img id="id-photo-display" src="" class="id-photo">
+                    <div>
+                        <h2 id="id-name-display" style="margin:0; text-transform:uppercase;">NAME</h2>
+                        <div style="color: var(--accent-red); font-weight: bold; margin-bottom: 10px;">SPION</div>
+                        <div style="font-family: monospace; font-size: 13px;">
+                            ID: <span id="id-num-gen"></span><br>
+                            JOINED: <span id="id-date-gen"></span>
+                        </div>
+                    </div>
+                </div>
+                <div style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; opacity: 0.6;">
+                    <i class="fas fa-shield-alt"></i> OFFICIAL IDENTIFICATION
+                </div>
+                <div style="position: absolute; bottom: 10px; left: 20px; font-size: 8px; color: gray;">
+                    SPION DATABASE // SECURE CONNECTION
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-panel fade-in">
+            <h3 style="color: var(--accent-red)">ACCOUNT ERSTELLEN (ADMIN)</h3>
+            <button class="btn-fill btn-red" onclick="document.getElementById('admin-form').classList.toggle('hidden')">Account Hinzufügen</button>
+            <div id="admin-form" class="hidden" style="margin-top: 20px; border: 1px solid #444; padding: 20px;">
+                <label>SPION NAME</label>
+                <input type="text" id="adm-name" placeholder="Name mit Sonderzeichen erlaubt...">
+                <label>SPION PASSWORT (Nur Zahlen)</label>
+                <input type="number" id="adm-pass">
+                <button class="btn-fill btn-blue" onclick="adminCreateAccount()">Account erstellen</button>
+                <div id="generated-acc" class="hidden" style="background: #111; padding: 15px; margin-top: 15px;">
+                    <p>Name: <span id="res-name"></span></p>
+                    <p>Pass: <span id="res-pass">****</span> <i class="fas fa-eye" onclick="togglePassView()"></i></p>
+                    <p style="color: var(--accent-purple)">CODE (Gültig 1 Min): <span id="minute-code">----</span></p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    let spion_name = "";
-    let all_files = [];
-    const MY_IP = "127.0.0.1"; // DEINE IP HIER
+    let isLoginMode = false;
+    let userData = { name: "", id: "", color: "#9d4edd", photo: "", joined: "" };
+    let cases = [];
+    let MY_IP = ""; // Wird simuliert
 
-    window.onload = () => {
-        // IP CHECK SIMULATION
-        if(window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") {
-            document.getElementById('auth-status').innerText = "IP ERKANNT - ZUGRIFF...";
-            setTimeout(() => { accessSystem(true); }, 1000);
+    // IP BYPASS
+    window.onload = async () => {
+        // Hier könnte man eine echte IP API abfragen, wir simulieren deine IP
+        const testIP = "127.0.0.1"; 
+        if(testIP === "127.0.0.1") {
+            console.log("IP erkannt. Login Bypass aktiviert.");
+            // Automatisch registrieren/einloggen
         }
+        updateMinuteCode();
+        setInterval(updateMinuteCode, 60000);
+    };
+
+    function toggleAuth() {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-main-btn').innerText = isLoginMode ? "EINLOGGEN" : "REGISTRIEREN";
+        document.getElementById('auth-toggle').innerText = isLoginMode ? "Du hast noch keinen Account? Hier Registrieren." : "Du hast schon ein Spion Account? Hier einloggen.";
     }
 
-    function accessSystem(bypass = false) {
-        spion_name = bypass ? "Zynox (Admin)" : document.getElementById('spion-name').value;
-        if(!spion_name) return;
+    function handleAuth() {
+        const name = document.getElementById('reg-name').value;
+        const code = document.getElementById('reg-code').value;
+        
+        if(!name || !code) return alert("Felder ausfüllen!");
 
-        document.getElementById('auth-overlay').classList.add('fade-out');
+        userData.name = name;
+        userData.id = "SPION-" + Math.floor(10000 + Math.random() * 90000);
+        const d = new Date();
+        userData.joined = `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
+        
+        document.getElementById('auth-screen').classList.add('fade-out');
         setTimeout(() => {
-            document.getElementById('auth-overlay').style.display = 'none';
-            document.getElementById('main-nav').classList.remove('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-            document.getElementById('user-display').innerText = "Agent: " + spion_name;
-            renderDashboard();
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-ui').classList.remove('hidden');
+            document.getElementById('nav-user-name').innerText = name;
+            document.getElementById('id-name-display').innerText = name;
+            document.getElementById('id-num-gen').innerText = userData.id;
+            document.getElementById('id-date-gen').innerText = userData.joined;
         }, 500);
     }
 
-    function showPage(page) {
-        document.getElementById('page-dashboard').classList.add('hidden');
-        document.getElementById('page-create').classList.add('hidden');
-        document.getElementById('page-' + page).classList.remove('hidden');
-        document.getElementById('page-' + page).classList.add('fade-in');
+    function showTab(tab) {
+        document.getElementById('tab-dashboard').classList.add('hidden');
+        document.getElementById('tab-create-case').classList.add('hidden');
+        document.getElementById('tab-' + tab).classList.remove('hidden');
     }
 
-    function createFile() {
-        const title = document.getElementById('new-title').value;
-        const data = document.getElementById('new-data').value;
-        if(!title || !data) return;
+    function showProfile(show) {
+        document.getElementById('p-dropdown').style.display = show ? 'flex' : 'none';
+    }
 
-        const newFile = {
-            title: title,
-            data: data,
-            date: new Date().toLocaleString(),
-            id: Math.random().toString(36).substr(2, 9)
-        };
+    function openSettings() {
+        document.getElementById('p-dropdown').classList.add('fade-out');
+        document.getElementById('frame-settings').classList.remove('hidden');
+        document.getElementById('frame-settings').classList.add('fade-in');
+    }
 
-        all_files.push(newFile);
-        document.getElementById('new-title').value = "";
-        document.getElementById('new-data').value = "";
-        showPage('dashboard');
+    function saveSettings() {
+        const file = document.getElementById('upload-p').files[0];
+        const color = document.getElementById('id-color-picker').value;
+        
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                userData.photo = e.target.result;
+                document.getElementById('p-img-nav').style.backgroundImage = `url(${e.target.result})`;
+                document.getElementById('id-photo-display').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        userData.color = color;
+        document.getElementById('id-card-element').style.borderColor = color;
+        
+        document.getElementById('frame-settings').classList.add('fade-out');
+        setTimeout(() => document.getElementById('frame-settings').classList.add('hidden'), 500);
+    }
+
+    function openID() {
+        document.getElementById('frame-id').classList.toggle('hidden');
+        document.getElementById('frame-id').classList.add('fade-in');
+    }
+
+    function updateMinuteCode() {
+        const code = Math.floor(1000 + Math.random() * 9000);
+        if(document.getElementById('minute-code')) document.getElementById('minute-code').innerText = code;
+    }
+
+    function adminCreateAccount() {
+        const n = document.getElementById('adm-name').value;
+        const p = document.getElementById('adm-pass').value;
+        document.getElementById('res-name').innerText = n;
+        document.getElementById('res-pass').innerText = p;
+        document.getElementById('generated-acc').classList.remove('hidden');
+    }
+
+    function togglePassView() {
+        const p = document.getElementById('res-pass');
+        p.innerText = p.innerText === "****" ? document.getElementById('adm-pass').value : "****";
+    }
+
+    function saveNewCase() {
+        const title = document.getElementById('case-title').value;
+        const data = document.getElementById('case-stammdaten').value;
+        if(!title) return;
+
+        cases.push({ title, data, user: userData.name });
         renderDashboard();
+        showTab('dashboard');
     }
 
     function renderDashboard() {
-        const grid = document.getElementById('dashboard-grid');
-        grid.innerHTML = "";
-
-        if(all_files.length === 0) {
-            grid.innerHTML = `
-                <div class="empty-state fade-in" style="grid-column: 1/-1;">
-                    <i class="fa fa-folder-open"></i>
-                    <h2>Es sind bisher keine Akte.</h2>
-                    <p>Erstelle eine neue Akte im Menü.</p>
-                </div>`;
-            return;
-        }
-
-        all_files.forEach((file, index) => {
-            grid.innerHTML += `
-                <div class="case-card fade-in" style="animation-delay: ${index * 0.1}s">
-                    <div style="color:var(--accent-red); font-size:10px; margin-bottom:10px;">ID: ${file.id.toUpperCase()}</div>
-                    <h2 style="font-weight:bold">${file.title}</h2>
-                    <div class="case-teaser">${file.data.substring(0, 150)}...</div>
-                    <button class="btn-fill btn-purple" style="width:100%" onclick="openFile('${file.id}')">AKTE ÖFFNEN</button>
-                </div>
-            `;
-        });
-    }
-
-    function openFile(id) {
-        const file = all_files.find(f => f.id === id);
-        document.getElementById('m-title').innerText = file.title;
-        document.getElementById('m-data').innerText = file.data;
-        document.getElementById('m-date').innerText = file.date;
-        document.getElementById('m-ki').innerText = "KI ZUSAMMENFASSUNG: Diese Akte enthält Informationen über " + file.title + ". Die Stammdaten wurden am " + file.date + " von " + spion_name + " sicher hinterlegt.";
+        const list = document.getElementById('case-list');
+        const empty = document.getElementById('empty-msg');
+        list.innerHTML = "";
         
-        const modal = document.getElementById('file-modal');
-        modal.style.display = 'block';
-    }
+        if(cases.length > 0) empty.classList.add('hidden');
 
-    function closeFile() {
-        document.getElementById('file-modal').style.display = 'none';
-    }
-
-    function searchFiles() {
-        let query = document.getElementById('search').value.toLowerCase();
-        let cards = document.querySelectorAll('.case-card');
-        cards.forEach(card => {
-            let title = card.querySelector('h2').innerText.toLowerCase();
-            card.style.display = title.includes(query) ? "block" : "none";
+        cases.forEach((c, i) => {
+            const card = document.createElement('div');
+            card.className = "case-frame fade-in";
+            card.innerHTML = `
+                <h2 style="color:var(--accent-red)">${c.title}</h2>
+                <div class="stammdaten-area">${c.data.substring(0, 100)}...</div>
+                <button class="btn-fill btn-purple" onclick="openFullCase(${i})">AKTE ÖFFNEN</button>
+                <p style="font-size:10px; color:gray">Erstellt von: ${c.user}</p>
+                <button class="btn-fill btn-red" style="padding:5px; font-size:10px;" onclick="deleteCase(${i})">LÖSCHEN</button>
+            `;
+            list.appendChild(card);
         });
+    }
+
+    function openFullCase(i) {
+        const c = cases[i];
+        // KI Zusammenfassung Simulation
+        const summary = "KI ANALYSE: Das Dokument '" + c.title + "' enthält verschlüsselte Stammdaten. Relevanzstufe: Hoch.";
+        alert("KI ZUSAMMENFASSUNG:\n\n" + summary);
+    }
+
+    function deleteCase(i) {
+        if(userData.name === "Zynox" || cases[i].user === userData.name) {
+            cases.splice(i, 1);
+            renderDashboard();
+        } else {
+            alert("Keine Berechtigung!");
+        }
     }
 </script>
-
 </body>
 </html>
