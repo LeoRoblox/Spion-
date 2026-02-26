@@ -3,34 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SP♱ON DATABASE | SECURE</title>
+    <title>SP♱ON DATABASE // ULTIMATE EDITION</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        /* --- CORE DESIGN --- */
         :root {
-            --bg: #030303;
+            --bg: #020202;
+            --panel: #080808;
             --accent-red: #ff0000;
             --accent-blue: #008cff;
             --accent-purple: #9d4edd;
-            --glass: rgba(20, 20, 20, 0.95);
-            --border: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.08);
+            --matrix-green: #00ff41;
         }
 
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
         body { background: var(--bg); color: #fff; margin: 0; overflow-x: hidden; }
 
-        /* --- SMOOTH ANIMATIONS --- */
-        .fade-in { animation: fadeIn 0.4s ease forwards; }
-        .fade-out { animation: fadeOut 0.4s ease forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-        @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.98); } }
+        /* --- ANIMATIONS --- */
+        .fade-in { animation: fadeIn 0.5s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- BUTTON FILL ANIMATION (HOVER) --- */
+        /* BUTTON FILL ANIMATION (DEIN WUNSCH) */
         .btn-fill {
             position: relative; padding: 12px 24px; background: transparent;
             border: 1px solid var(--border); color: white; cursor: pointer;
             overflow: hidden; z-index: 1; font-weight: bold; text-transform: uppercase;
-            transition: color 0.4s;
         }
         .btn-fill::before {
             content: ''; position: absolute; bottom: -100%; left: 0; width: 100%; height: 100%;
@@ -39,60 +37,45 @@
         .btn-blue::before { background: var(--accent-blue); }
         .btn-purple::before { background: var(--accent-purple); }
         .btn-red::before { background: var(--accent-red); }
-        .btn-white::before { background: white; }
-        
+        .btn-white::before { background: #fff; }
         .btn-fill:hover::before { bottom: 0; }
-        .btn-white:hover { color: black; }
+        .btn-white:hover { color: #000; }
 
-        /* --- NAV & PROFILE --- */
+        /* --- UI ELEMENTS --- */
         nav {
             padding: 15px 40px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border); position: sticky; top: 0; background: black; z-index: 100;
+            border-bottom: 1px solid var(--border); background: #000; position: sticky; top: 0; z-index: 1000;
         }
-        .logo { color: var(--accent-red); font-weight: 900; font-size: 26px; letter-spacing: 2px; }
 
-        .profile-container { position: relative; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-        .profile-pic { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent-blue); object-fit: cover; }
-        
+        .profile-area { position: relative; cursor: pointer; display: flex; align-items: center; gap: 12px; }
         .profile-dropdown {
-            position: absolute; right: 0; top: 60px; width: 180px; background: #111;
-            border: 1px solid #333; display: none; flex-direction: column; gap: 5px; padding: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            position: absolute; right: 0; top: 55px; background: #0a0a0a; border: 1px solid #222;
+            width: 200px; display: none; flex-direction: column; padding: 10px; gap: 8px; z-index: 1100;
         }
+        .profile-area:hover .profile-dropdown { display: flex; animation: fadeIn 0.3s; }
 
-        /* --- DASHBOARD & AKTEN --- */
-        #case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; padding: 40px; }
-        .case-preview-card {
-            background: #0a0a0a; border: 1px solid #222; padding: 25px; border-radius: 5px;
-        }
-        .case-preview-card h2 { color: white; text-transform: uppercase; margin-top: 0; }
-        .preview-text { color: lime; font-family: monospace; height: 60px; overflow: hidden; opacity: 0.7; margin-bottom: 15px; }
-
-        /* --- FULL SCREEN MODAL (AKTE ÖFFNEN) --- */
-        #akte-modal {
-            position: fixed; inset: 0; background: #050505; z-index: 2000; display: none;
-            padding: 40px; overflow-y: auto;
-        }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 20px; }
-        .stammdaten-display { 
-            background: #000; color: lime; padding: 25px; border: 1px solid #222; 
-            font-family: 'Courier New', monospace; white-space: pre; overflow-x: auto; margin: 20px 0;
-        }
-
-        /* --- DIENSTAUSWEIS --- */
+        /* --- ID CARD (WIE IM BILD) --- */
         .id-card {
-            width: 450px; height: 260px; background: #111; border: 2px solid #333;
-            border-radius: 12px; position: relative; padding: 25px; overflow: hidden; margin: auto;
+            width: 450px; height: 260px; background: #0f0f0f; border: 2px solid #333;
+            border-radius: 12px; position: relative; padding: 25px; overflow: hidden; margin: 40px auto;
         }
-        .scan-bar {
-            position: absolute; width: 100%; height: 3px; background: white;
-            box-shadow: 0 0 15px white; left: 0; animation: scanning 3s linear infinite;
+        .scanline {
+            position: absolute; width: 100%; height: 3px; background: #fff; opacity: 0.5;
+            box-shadow: 0 0 15px #fff; top: 0; left: 0; animation: scan 4s linear infinite;
         }
-        @keyframes scanning { 0% { top: 0; } 100% { top: 100%; } }
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* --- BEWEISMITTEL SYSTEM --- */
-        .evidence-box { background: #111; border: 1px solid #333; padding: 15px; margin-top: 10px; }
-        .evidence-item { display: flex; align-items: center; gap: 10px; color: var(--accent-purple); font-size: 14px; margin-top: 5px; }
+        /* --- CASE STYLES --- */
+        .case-card { background: var(--panel); border: 1px solid #111; padding: 25px; border-radius: 4px; position: relative; }
+        .stammdaten-box {
+            background: #000; color: var(--matrix-green); padding: 15px;
+            font-family: 'Courier New', monospace; white-space: pre; overflow: auto;
+            border: 1px solid #1a1a1a; margin: 15px 0; max-height: 300px;
+        }
+
+        /* --- MEDIA ZOOM --- */
+        .evidence-img { max-width: 100%; border: 1px solid #333; cursor: zoom-in; margin-top: 10px; }
+        .evidence-img:active { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(2); z-index: 9999; }
 
         .hidden { display: none !important; }
     </style>
@@ -100,277 +83,309 @@
 <body>
 
 <div id="auth-screen" style="height: 100vh; display: flex; justify-content: center; align-items: center;">
-    <div class="fade-in" style="background: #0a0a0a; padding: 40px; border: 1px solid #222; width: 400px;">
-        <div style="margin-bottom: 20px;">
-            <label style="color: var(--accent-blue); display:block; margin-bottom: 5px;"><i class="fa fa-user"></i> SPION NAME</label>
-            <input type="text" id="reg-name" style="width:100%; padding:12px; background:black; border:1px solid #333; color:white;">
+    <div style="background: #0a0a0a; padding: 45px; border: 1px solid #222; width: 420px; border-radius: 8px;">
+        <h2 id="auth-header" style="text-align:center; color: var(--accent-red); letter-spacing: 2px;">SECURE ACCESS</h2>
+        
+        <div style="margin-top: 30px;">
+            <label style="color: var(--accent-blue); font-size: 12px; font-weight: bold;"><i class="fa fa-user"></i> SPION NAME</label>
+            <input type="text" id="reg-name" style="width:100%; padding:12px; background:black; border:1px solid #333; color:white; margin-bottom:20px;">
+            
+            <label style="color: var(--accent-red); font-size: 12px; font-weight: bold;"><i class="fa fa-lock"></i> CODE</label>
+            <input type="number" id="reg-code" style="width:100%; padding:12px; background:black; border:1px solid #333; color:white; margin-bottom:20px;">
+            
+            <button id="auth-btn" class="btn-fill btn-purple" style="width:100%" onclick="login()">REGISTRIEREN</button>
+            <p id="auth-toggle" style="text-align:center; font-size:12px; color: #555; cursor:pointer; margin-top:15px;" onclick="toggleAuth()">
+                Du hast schon ein Spion Account? Hier einloggen.
+            </p>
         </div>
-        <div style="margin-bottom: 20px;">
-            <label style="color: var(--accent-red); display:block; margin-bottom: 5px;"><i class="fa fa-lock"></i> CODE</label>
-            <input type="number" id="reg-code" style="width:100%; padding:12px; background:black; border:1px solid #333; color:white;">
-        </div>
-        <button id="auth-btn" class="btn-fill btn-purple" style="width: 100%" onclick="login()">REGISTRIEREN</button>
-        <p style="font-size: 12px; text-align: center; cursor: pointer; margin-top: 15px;" id="auth-toggle" onclick="toggleAuth()">Du hast schon ein Spion Account? Hier einloggen.</p>
     </div>
 </div>
 
-<div id="main-interface" class="hidden">
+<div id="main-ui" class="hidden">
     <nav>
-        <div class="logo">SP♱ON</div>
-        <div style="display: flex; gap: 15px;">
+        <div style="color: var(--accent-red); font-weight: 900; font-size: 26px;">SP♱ON</div>
+        <div style="display:flex; gap:15px;">
             <button class="btn-fill btn-blue" onclick="showTab('dashboard')">Dashboard</button>
             <button class="btn-fill btn-purple" onclick="showTab('create')">Akte Erstellen</button>
         </div>
-        <div class="profile-container" onmouseenter="toggleProfile(true)" onmouseleave="toggleProfile(false)">
-            <span id="display-username">Zynox</span>
-            <img src="https://via.placeholder.com/100" id="nav-pic" class="profile-pic">
-            <div class="profile-dropdown" id="p-drop">
-                <button class="btn-fill btn-white" onclick="openSection('settings')">Einstellungen</button>
-                <button class="btn-fill btn-white" onclick="openSection('idcard')">Dienstausweis</button>
+        <div class="profile-area">
+            <span id="nav-username" style="color: var(--accent-blue); font-weight: bold;">Zynox</span>
+            <div id="nav-avatar" style="width:42px; height:42px; border-radius:50%; background:#222; background-size:cover;"></div>
+            <div class="profile-dropdown">
+                <button class="btn-fill btn-white" onclick="showFrame('settings')">Einstellungen</button>
+                <button class="btn-fill btn-white" onclick="showFrame('idcard')">Dienstausweis</button>
             </div>
         </div>
     </nav>
 
-    <div id="tab-dashboard" class="fade-in">
-        <div id="empty-state" style="text-align: center; margin-top: 100px;">
-            <i class="fa fa-folder-open fa-5x" style="color: #222;"></i>
-            <h2 style="color: #444;">Es sind bisher keine Akte.</h2>
+    <div style="padding: 40px;">
+        <div id="tab-dashboard">
+            <div id="empty-msg" style="text-align:center; margin-top:100px; color: #333;">
+                <i class="fa fa-folder-open fa-5x"></i>
+                <h2>Es sind bisher keine Akte.</h2>
+            </div>
+            <div id="case-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap:30px;"></div>
         </div>
-        <div id="case-grid"></div>
-    </div>
 
-    <div id="tab-create" class="hidden fade-in" style="padding: 50px; max-width: 900px; margin: auto;">
-        <h2 style="color: var(--accent-purple)"><i class="fa fa-file-signature"></i> NEUE FALLAKTE</h2>
-        <input type="text" id="new-title" placeholder="TITEL DER AKTE" style="width:100%; padding:15px; background:black; border:1px solid #333; color:white; margin-bottom:20px;">
-        <textarea id="new-stammdaten" placeholder="STAMMDATEN (ASCII Art erlaubt)" style="width:100%; height:300px; background:black; border:1px solid #333; color:lime; font-family:monospace; padding:20px;"></textarea>
-        <button class="btn-fill btn-red" onclick="saveCase()">SPION AKTE ERSTELLEN</button>
-    </div>
-</div>
+        <div id="tab-create" class="hidden">
+            <div class="case-card" style="max-width: 800px; margin: auto; border: 1px solid var(--accent-purple);">
+                <h2 style="color: var(--accent-purple);"><i class="fa fa-file-signature"></i> NEUE FALLAKTE</h2>
+                <input type="text" id="case-title" placeholder="FALL TITEL" style="width:100%; padding:15px; background:black; border:1px solid #333; color:white; margin-bottom:20px;">
+                <textarea id="case-stammdaten" style="width:100%; height:250px; background:black; border:1px solid #333; color:var(--matrix-green); font-family:monospace; padding:15px;"></textarea>
+                <button class="btn-fill btn-red" style="width:100%; margin-top:20px;" onclick="saveCase()">SPION AKTE ERSTELLEN</button>
+            </div>
+        </div>
 
-<div id="akte-modal" class="fade-in">
-    <div class="modal-header">
-        <h1 id="m-title" style="color: white; margin: 0;">AKTE</h1>
-        <button class="btn-fill btn-red" onclick="closeAkte()">SCHLIESSEN</button>
-    </div>
-    <div class="stammdaten-display" id="m-data"></div>
-
-    <div style="display: flex; gap: 10px; margin-bottom: 30px;">
-        <button class="btn-fill btn-purple" onclick="runAI()">KI Angabe</button>
-        <button class="btn-fill btn-blue" onclick="toggleVerlauf()">Verlauf</button>
-        <button class="btn-fill btn-white" onclick="exportPDF()">PDF Export</button>
-    </div>
-
-    <div id="ki-frame" class="hidden" style="background: rgba(157, 78, 221, 0.1); border: 1px solid var(--accent-purple); padding: 20px; margin-bottom: 20px;">
-        <h3 style="margin-top:0"><i class="fa fa-robot"></i> KI ZUSAMMENFASSUNG</h3>
-        <p id="ki-text" style="color: #ccc;"></p>
-    </div>
-
-    <div id="verlauf-frame" class="hidden">
-        <h3><i class="fa fa-clock"></i> VERLAUF</h3>
-        <div id="evidence-list"></div>
-        <div class="evidence-box">
-            <h4>Beweismittel hinzufügen (Max 1GB)</h4>
-            <label>Inhalt (Markdown)</label>
-            <input type="text" id="ev-content" style="width:100%; padding:10px; background:black; border:1px solid #333; color:white; margin:10px 0;">
-            <input type="file" id="ev-file" style="margin-bottom: 10px;">
-            <button class="btn-fill btn-purple" onclick="addEvidence()"><i class="fa fa-paper-plane"></i> EINTRAG SPEICHERN</button>
+        <div id="admin-panel" class="case-card" style="border: 1px solid var(--accent-red); margin-top: 50px;">
+            <h3 style="color: var(--accent-red)">ACCOUNT ERSTELLEN (ADMIN)</h3>
+            <div id="admin-inputs">
+                <input type="text" id="adm-n" placeholder="SPION NAME" style="width:200px; padding:10px; background:#000; border:1px solid #333; color:#fff;">
+                <input type="number" id="adm-p" placeholder="PASSWORT" style="width:200px; padding:10px; background:#000; border:1px solid #333; color:#fff;">
+                <button class="btn-fill btn-blue" onclick="adminCreate()">Account erstellen</button>
+            </div>
+            <div id="adm-res" class="hidden" style="background:#111; padding:15px; margin-top:15px; border-left: 4px solid var(--accent-purple);">
+                <p>NAME: <span id="res-n"></span> | PASS: <span id="res-p">****</span> <i class="fa fa-eye" style="cursor:pointer" onclick="toggleView()"></i></p>
+                <p style="color: var(--accent-purple)">AKTUELLER CODE: <span id="min-code">----</span></p>
+            </div>
         </div>
     </div>
 </div>
 
-<div id="settings-modal" class="akte-modal hidden fade-in" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:5000; padding:100px;">
-    <div style="background:#111; padding:40px; max-width:500px; margin:auto; border:1px solid #333;">
-        <h2>PROFIL BILD</h2>
-        <input type="file" id="p-input" accept="image/png, image/jpeg">
-        <h2>Dienstausweis Farbe</h2>
-        <input type="color" id="id-color-input" value="#9d4edd" style="width:100%; height:50px; background:none; border:none;">
-        <br><br>
-        <button class="btn-fill btn-blue" onclick="saveSettings()">Speichern</button>
-        <button class="btn-fill btn-red" onclick="this.parentElement.parentElement.style.display='none'">Abbrechen</button>
+<div id="akte-modal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:5000; padding:50px; overflow-y:auto;">
+    <div style="max-width: 1000px; margin: auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #333; padding-bottom: 20px;">
+            <h1 id="m-title" style="margin:0; font-size:40px;">AKTE</h1>
+            <button class="btn-fill btn-red" onclick="closeAkte()">SCHLIESSEN</button>
+        </div>
+        
+        <div class="stammdaten-box" id="m-data"></div>
+        
+        <div style="display:flex; gap:10px; margin: 20px 0;">
+            <button class="btn-fill btn-purple" onclick="runKI()">KI Angabe</button>
+            <button class="btn-fill btn-blue" onclick="toggleVerlauf()">Verlauf</button>
+            <button class="btn-fill btn-white" onclick="alert('PDF wird generiert...')">PDF Export</button>
+        </div>
+
+        <div id="ki-box" class="hidden" style="background: rgba(157, 78, 221, 0.1); border: 1px solid var(--accent-purple); padding: 20px; margin-bottom: 20px;">
+            <div id="ki-loader" style="height:2px; background:var(--accent-purple); width:0; transition: 2s width;"></div>
+            <h4 style="color: var(--accent-purple)">KI ZUSAMMENFASSUNG</h4>
+            <p id="ki-text"></p>
+        </div>
+
+        <div id="verlauf-box" class="hidden">
+            <h3>BEWEIS-VERLAUF</h3>
+            <div id="evidence-list"></div>
+            <div style="background:#0a0a0a; padding:20px; border:1px solid #333; margin-top:20px;">
+                <textarea id="ev-txt" placeholder="Inhalt (Markdowns...)" style="width:100%; height:80px; background:#000; color:#fff; border:1px solid #444; padding:10px;"></textarea>
+                <input type="file" id="ev-file" style="margin:10px 0;">
+                <button class="btn-fill btn-purple" onclick="addEvidence()">EINTRAG SPEICHERN</button>
+            </div>
+        </div>
     </div>
 </div>
 
-<div id="id-modal" class="hidden fade-in" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:5000; padding:100px;">
-    <div class="id-card" id="main-id-card">
-        <div class="scan-bar"></div>
-        <div style="display: flex; gap: 20px;">
-            <img id="id-img" src="" style="width:120px; height:150px; border:1px solid #333; object-fit:cover;">
+<div id="id-modal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:6000; display:flex; justify-content:center; align-items:center;">
+    <div class="id-card" id="main-id">
+        <div class="scanline"></div>
+        <div style="display:flex; gap:20px;">
+            <div id="id-pic" style="width:130px; height:160px; background:#222; border:1px solid #444; background-size:cover;"></div>
             <div>
-                <h2 id="id-name" style="margin:0; font-size:28px;">NAME</h2>
-                <p style="color: var(--accent-red); font-weight:bold; margin: 5px 0;">SPION</p>
-                <div style="font-family: monospace; font-size:12px; color: #888; margin-top:15px;">
+                <h2 id="id-name" style="margin:0; font-size:30px; text-transform:uppercase;">NAME</h2>
+                <p style="color:var(--accent-red); font-weight:bold; margin:5px 0;">SPION</p>
+                <div style="font-family:monospace; font-size:13px; color:#888; margin-top:20px;">
                     ID: <span id="id-val"></span><br>
                     JOINED: <span id="id-date"></span>
                 </div>
             </div>
         </div>
-        <div style="position: absolute; bottom: 15px; right: 20px; font-size: 10px; color: #444;">
-            <i class="fa fa-shield"></i> OFFICIAL IDENTIFICATION
-        </div>
-        <div style="position: absolute; bottom: 15px; left: 20px; font-size: 8px; color: #333;">
-            SPION DATABASE // SECURE CONNECTION
-        </div>
+        <div style="position:absolute; bottom:15px; right:20px; font-size:10px; opacity:0.5;">OFFICIAL IDENTIFICATION</div>
     </div>
-    <center style="margin-top: 20px;"><button class="btn-fill btn-red" onclick="document.getElementById('id-modal').style.display='none'">SCHLIESSEN</button></center>
+    <button class="btn-fill btn-red" style="position:absolute; top:20px; right:20px;" onclick="document.getElementById('id-modal').classList.add('hidden')">X</button>
+</div>
+
+<div id="set-modal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:6000; display:flex; justify-content:center; align-items:center;">
+    <div class="case-card" style="width:400px;">
+        <h3>PROFIL EINSTELLUNGEN</h3>
+        <label>Profilbild wählen</label>
+        <input type="file" id="up-pic" style="margin-bottom:20px;">
+        <label>Dienstausweis Farbe</label>
+        <input type="color" id="up-color" style="width:100%; height:40px; margin-bottom:20px;">
+        <button class="btn-fill btn-blue" style="width:100%" onclick="saveSettings()">SPEICHERN</button>
+    </div>
 </div>
 
 <script>
-    let isLogin = false;
     let currentUser = { name: "", id: "", joined: "", color: "#9d4edd", pic: "" };
     let cases = [];
+    let isLogin = false;
+    let activeCaseIdx = null;
 
-    // IP Check Simulation
+    // IP BYPASS SIMULATION
     window.onload = () => {
-        const myIP = "127.0.0.1"; // Hier deine IP
         if(window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
             login(true);
         }
-    }
+        setInterval(updateCode, 60000);
+        updateCode();
+    };
 
     function toggleAuth() {
         isLogin = !isLogin;
         document.getElementById('auth-btn').innerText = isLogin ? "EINLOGGEN" : "REGISTRIEREN";
-        document.getElementById('auth-toggle').innerText = isLogin ? "Du hast noch keinen Account? Hier Registrieren." : "Du hast schon ein Spion Account? Hier einloggen.";
+        document.getElementById('auth-toggle').innerText = isLogin ? "Noch kein Account? Registrieren." : "Schon ein Account? Einloggen.";
     }
 
     function login(bypass = false) {
         let name = bypass ? "Zynox" : document.getElementById('reg-name').value;
         if(!name) return;
-
         currentUser.name = name;
-        currentUser.id = "SPION-" + Math.floor(Math.random() * 90000 + 10000);
-        const d = new Date();
-        currentUser.joined = d.toLocaleDateString();
-
-        document.getElementById('auth-screen').classList.add('fade-out');
-        setTimeout(() => {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-interface').classList.remove('hidden');
-            document.getElementById('display-username').innerText = name;
-            document.getElementById('id-name').innerText = name;
-            document.getElementById('id-val').innerText = currentUser.id;
-            document.getElementById('id-date').innerText = currentUser.joined;
-        }, 400);
+        currentUser.id = "SPION-" + Math.floor(10000 + Math.random() * 90000);
+        currentUser.joined = new Date().toLocaleDateString('de-DE');
+        
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('main-ui').classList.remove('hidden');
+        document.getElementById('nav-username').innerText = name;
+        document.getElementById('id-name').innerText = name;
+        document.getElementById('id-val').innerText = currentUser.id;
+        document.getElementById('id-date').innerText = currentUser.joined;
     }
 
-    function showTab(tab) {
+    function showTab(t) {
         document.getElementById('tab-dashboard').classList.add('hidden');
         document.getElementById('tab-create').classList.add('hidden');
-        document.getElementById('tab-' + tab).classList.remove('hidden');
-    }
-
-    function toggleProfile(show) {
-        document.getElementById('p-drop').style.display = show ? 'flex' : 'none';
-    }
-
-    function openSection(sec) {
-        if(sec === 'settings') document.getElementById('settings-modal').style.display = 'block';
-        if(sec === 'idcard') document.getElementById('id-modal').style.display = 'block';
-    }
-
-    function saveSettings() {
-        const file = document.getElementById('p-input').files[0];
-        const color = document.getElementById('id-color-input').value;
-        
-        if(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('nav-pic').src = e.target.result;
-                document.getElementById('id-img').src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-        document.getElementById('main-id-card').style.borderColor = color;
-        document.getElementById('settings-modal').style.display = 'none';
+        document.getElementById('tab-' + t).classList.remove('hidden');
     }
 
     function saveCase() {
-        const title = document.getElementById('new-title').value;
-        const data = document.getElementById('new-stammdaten').value;
-        if(!title || !data) return;
-
-        cases.push({ title, data, evidence: [] });
-        document.getElementById('new-title').value = "";
-        document.getElementById('new-stammdaten').value = "";
-        
+        const t = document.getElementById('case-title').value;
+        const d = document.getElementById('case-stammdaten').value;
+        if(!t || !d) return;
+        cases.push({ title: t, data: d, creator: currentUser.name, evidence: [] });
+        document.getElementById('case-title').value = "";
+        document.getElementById('case-stammdaten').value = "";
         renderDashboard();
         showTab('dashboard');
     }
 
     function renderDashboard() {
         const grid = document.getElementById('case-grid');
-        const empty = document.getElementById('empty-state');
         grid.innerHTML = "";
-        
-        if(cases.length > 0) empty.classList.add('hidden');
-        else empty.classList.remove('hidden');
-
+        if(cases.length > 0) document.getElementById('empty-msg').classList.add('hidden');
         cases.forEach((c, i) => {
             grid.innerHTML += `
-                <div class="case-preview-card fade-in">
-                    <h2>${c.title}</h2>
-                    <div class="preview-text">${c.data}</div>
+                <div class="case-card fade-in">
+                    <h2 style="margin:0">${c.title}</h2>
+                    <p style="color:gray; font-size:11px;">AGENT: ${c.creator}</p>
+                    <div class="stammdaten-box" style="height:60px; overflow:hidden; font-size:10px;">${c.data}</div>
                     <button class="btn-fill btn-purple" style="width:100%" onclick="openAkte(${i})">AKTE ÖFFNEN</button>
+                    ${(currentUser.name === "Zynox" || currentUser.name === c.creator) ? `<i class="fa fa-trash" style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.3" onclick="delCase(${i})"></i>` : ''}
                 </div>
             `;
         });
     }
 
-    let activeAkteIndex = null;
-    function openAkte(index) {
-        activeAkteIndex = index;
-        const c = cases[index];
-        document.getElementById('m-title').innerText = c.title;
-        document.getElementById('m-data').innerText = c.data;
-        document.getElementById('akte-modal').style.display = 'block';
+    function openAkte(i) {
+        activeCaseIdx = i;
+        document.getElementById('m-title').innerText = cases[i].title;
+        document.getElementById('m-data').innerText = cases[i].data;
+        document.getElementById('akte-modal').classList.remove('hidden');
         renderEvidence();
     }
 
     function closeAkte() {
-        document.getElementById('akte-modal').style.display = 'none';
-        document.getElementById('ki-frame').classList.add('hidden');
-        document.getElementById('verlauf-frame').classList.add('hidden');
+        document.getElementById('akte-modal').classList.add('hidden');
+        document.getElementById('ki-box').classList.add('hidden');
     }
 
-    function runAI() {
-        const ki = document.getElementById('ki-frame');
-        ki.classList.remove('hidden');
-        document.getElementById('ki-text').innerText = "KI ANALYSE: Das Dokument '" + cases[activeAkteIndex].title + "' wurde analysiert. Es enthält wichtige Stammdaten über operative Ziele. Status: Gesichert.";
+    function runKI() {
+        const box = document.getElementById('ki-box');
+        const loader = document.getElementById('ki-loader');
+        box.classList.remove('hidden');
+        loader.style.width = "0%";
+        setTimeout(() => {
+            loader.style.width = "100%";
+            document.getElementById('ki-text').innerText = "KI-BERICHT: Die vorliegende Akte '" + cases[activeCaseIdx].title + "' wurde von Agent " + cases[activeCaseIdx].creator + " erstellt. Die Stammdaten deuten auf eine hochrelevante Operation hin. Zusammenfassung der Daten: " + cases[activeCaseIdx].data.substring(0, 150) + "...";
+        }, 100);
     }
 
-    function toggleVerlauf() {
-        document.getElementById('verlauf-frame').classList.toggle('hidden');
-    }
+    function toggleVerlauf() { document.getElementById('verlauf-box').classList.toggle('hidden'); }
 
     function addEvidence() {
-        const content = document.getElementById('ev-content').value;
+        const txt = document.getElementById('ev-txt').value;
         const file = document.getElementById('ev-file').files[0];
-        if(!content) return;
-
-        cases[activeAkteIndex].evidence.push({ content, fileName: file ? file.name : "Keine Datei" });
-        renderEvidence();
+        if(!txt) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            cases[activeCaseIdx].evidence.push({
+                text: txt,
+                media: file ? e.target.result : null,
+                type: file ? file.type : null,
+                user: currentUser.name
+            });
+            renderEvidence();
+            document.getElementById('ev-txt').value = "";
+        };
+        if(file) reader.readAsDataURL(file);
+        else reader.onload({});
     }
 
     function renderEvidence() {
         const list = document.getElementById('evidence-list');
         list.innerHTML = "";
-        cases[activeAkteIndex].evidence.forEach(e => {
+        cases[activeCaseIdx].evidence.forEach((ev, i) => {
+            let mHTML = "";
+            if(ev.media) {
+                if(ev.type.includes('image')) mHTML = `<img src="${ev.media}" class="evidence-img">`;
+                else if(ev.type.includes('video')) mHTML = `<video src="${ev.media}" controls class="evidence-img"></video>`;
+            }
             list.innerHTML += `
-                <div class="evidence-box">
-                    <p>${e.content}</p>
-                    <div class="evidence-item"><i class="fa fa-paperclip"></i> BEWEISMITTEL: ${e.fileName}</div>
+                <div class="case-card" style="margin-top:10px; border-color:#222;">
+                    <p><strong>${ev.user}:</strong> ${ev.text}</p>
+                    ${mHTML}
+                    ${(currentUser.name === "Zynox" || currentUser.name === ev.user) ? `<button onclick="delEv(${i})" style="background:none; border:none; color:red; cursor:pointer; font-size:10px;">LÖSCHEN</button>` : ''}
                 </div>
             `;
         });
     }
 
-    function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text(document.getElementById('m-title').innerText, 10, 10);
-        doc.text(document.getElementById('m-data').innerText, 10, 20);
-        doc.save("Akte.pdf");
+    function showFrame(f) {
+        if(f === 'settings') document.getElementById('set-modal').classList.remove('hidden');
+        if(f === 'idcard') document.getElementById('id-modal').classList.remove('hidden');
     }
+
+    function saveSettings() {
+        const file = document.getElementById('up-pic').files[0];
+        const color = document.getElementById('up-color').value;
+        if(file) {
+            const r = new FileReader();
+            r.onload = (e) => {
+                document.getElementById('nav-avatar').style.backgroundImage = `url(${e.target.result})`;
+                document.getElementById('id-pic').style.backgroundImage = `url(${e.target.result})`;
+            };
+            r.readAsDataURL(file);
+        }
+        document.getElementById('main-id').style.borderColor = color;
+        document.getElementById('set-modal').classList.add('hidden');
+    }
+
+    function adminCreate() {
+        document.getElementById('res-n').innerText = document.getElementById('adm-n').value;
+        document.getElementById('adm-res').classList.remove('hidden');
+    }
+
+    function updateCode() {
+        document.getElementById('min-code').innerText = Math.floor(1000 + Math.random() * 9000);
+    }
+
+    function toggleView() {
+        const p = document.getElementById('res-p');
+        p.innerText = p.innerText === "****" ? document.getElementById('adm-p').value : "****";
+    }
+
+    function delCase(i) { cases.splice(i,1); renderDashboard(); }
+    function delEv(i) { cases[activeCaseIdx].evidence.splice(i,1); renderEvidence(); }
+
 </script>
 </body>
 </html>
