@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP♱ON | Database</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --accent-red: #ff3e3e;
+            --accent-blue: #0084ff;
+            --accent-purple: #9d4edd;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo { color: var(--accent-red); font-weight: bold; letter-spacing: 2px; font-size: 24px; }
+
+        .nav-links { display: flex; gap: 20px; }
+
+        /* Hover Fill Animation Button */
+        .btn-fill {
+            position: relative;
+            padding: 10px 25px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: white;
+            cursor: pointer;
+            overflow: hidden;
+            transition: color 0.4s;
+            z-index: 1;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .btn-fill::before {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 0;
+            z-index: -1;
+            transition: height 0.4s ease;
+        }
+
+        .btn-blue::before { background: var(--accent-blue); }
+        .btn-purple::before { background: var(--accent-purple); }
+        .btn-red::before { background: var(--accent-red); }
+
+        .btn-fill:hover::before { height: 100%; }
+        .btn-fill:hover { color: white; border-color: transparent; }
+
+        /* Auth Container */
+        .auth-container {
+            width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: bold; }
+        .label-blue { color: var(--accent-blue); }
+        .label-red { color: var(--accent-red); }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+            color: white;
+            box-sizing: border-box;
+        }
+
+        /* Dienstausweis / ID Card */
+        .id-card {
+            width: 500px;
+            height: 280px;
+            background: #1a1a1a url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            border-radius: 15px;
+            position: relative;
+            padding: 20px;
+            margin: 20px auto;
+            border: 2px solid #333;
+            overflow: hidden;
+        }
+
+        /* Scan Line Animation */
+        .scan-line {
+            position: absolute;
+            top: 0; width: 100%; height: 2px;
+            background: rgba(255,255,255,0.5);
+            box-shadow: 0 0 15px white;
+            animation: scan 3s linear infinite;
+            z-index: 10;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        .id-content { display: flex; gap: 20px; }
+        .id-photo {
+            width: 150px; height: 180px;
+            border: 2px solid var(--accent-red);
+            background: #333;
+            object-fit: cover;
+        }
+
+        .id-info h2 { margin: 0; letter-spacing: 2px; text-transform: uppercase; }
+        .id-details { margin-top: 15px; font-family: monospace; color: #aaa; }
+
+        /* Case File (Akte) */
+        .case-file {
+            width: 80%;
+            margin: 50px auto;
+            background: #121212;
+            padding: 30px;
+            border-left: 5px solid var(--accent-purple);
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            border: 1px solid var(--border);
+            white-space: pre; /* Wichtig für ASCII Art */
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">SP♱ON</div>
+    <div class="nav-links">
+        <button class="btn-fill btn-blue">Dashboard</button>
+        <button class="btn-fill btn-purple" onclick="toggleView('case-section')">Akte Erstellen</button>
+        <div class="profile-menu">
+            <span id="display-name">Zynox</span>
+            <div class="profile-dropdown">
+                </div>
+        </div>
+    </div>
+</nav>
+
+<div id="auth-section" class="auth-container">
+    <h3 id="auth-title">SPION REGISTRIEREN</h3>
+    
+    <div class="input-group">
+        <label class="label-blue"><i class="fas fa-user"></i> SPION NAME</label>
+        <input type="text" id="reg-name" placeholder="Name eingeben...">
+    </div>
+
+    <div class="input-group">
+        <label class="label-red"><i class="fas fa-lock"></i> CODE</label>
+        <input type="number" id="reg-code" placeholder="Nur Zahlen...">
+    </div>
+
+    <button id="auth-btn" class="btn-fill btn-purple" style="width: 100%">REGISTRIEREN</button>
+
+    <p style="margin-top: 20px; font-size: 0.9em; cursor: pointer;" onclick="switchAuth()">
+        <span id="auth-switch-text">Du hast schon ein Spion Account? Hier einloggen.</span>
+    </p>
+</div>
+
+<div id="case-section" class="case-file hidden">
+    <h2 style="color: var(--accent-purple)"><i class="fas fa-folder-plus"></i> NEUE FALLAKTE</h2>
+    <div class="input-group">
+        <label>TITEL</label>
+        <input type="text" placeholder="Fall Name...">
+    </div>
+    <div class="input-group">
+        <label>STAMMDATEN (ASCII Art unterstützt)</label>
+        <textarea placeholder="Daten hier einfügen..."></textarea>
+    </div>
+    <button class="btn-fill btn-red">SPION AKTE ERSTELLEN</button>
+</div>
+
+<div id="id-section" class="hidden">
+    <div class="id-card" id="my-card">
+        <div class="scan-line"></div>
+        <div class="id-content">
+            <img src="https://via.placeholder.com/150" class="id-photo" id="card-img">
+            <div class="id-info">
+                <small>PARADOXDB IDENTITY</small>
+                <h2 id="card-name">ZYNOX</h2>
+                <div class="id-details">
+                    <div>ID: <span id="card-id">SPION-88231</span></div>
+                    <div>JOINED: <span id="card-date">FEB 2026</span></div>
+                    <div style="margin-top: 20px; font-weight: bold; color: white;">SPION</div>
+                </div>
+            </div>
+        </div>
+        <div style="position: absolute; bottom: 10px; right: 20px; font-size: 10px; opacity: 0.5;">
+            <i class="fas fa-shield-alt"></i> OFFICIAL IDENTIFICATION
+        </div>
+    </div>
+</div>
+
+<script>
+    let isLogin = false;
+
+    // Wechsel zwischen Login und Registrierung
+    function switchAuth() {
+        isLogin = !isLogin;
+        const title = document.getElementById('auth-title');
+        const btn = document.getElementById('auth-btn');
+        const switchText = document.getElementById('auth-switch-text');
+
+        if(isLogin) {
+            title.innerText = "SPION LOGIN";
+            btn.innerText = "EINLOGGEN";
+            switchText.innerText = "Du hast noch keinen Account? Hier Registrieren.";
+        } else {
+            title.innerText = "SPION REGISTRIEREN";
+            btn.innerText = "REGISTRIEREN";
+            switchText.innerText = "Du hast schon ein Spion Account? Hier einloggen.";
+        }
+    }
+
+    function toggleView(id) {
+        document.getElementById('auth-section').classList.add('hidden');
+        document.getElementById('case-section').classList.add('hidden');
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    // ID Generator (5 Zahlen)
+    function generateID() {
+        let num = Math.floor(10000 + Math.random() * 90000);
+        return "SPION-" + num;
+    }
+
+    // Beispiel für den Beitritts-Zeitstempel
+    const now = new Date();
+    const months = ["JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"];
+    document.getElementById('card-date').innerText = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+    document.getElementById('card-id').innerText = generateID();
+
+</script>
+
+</body>
+</html>
