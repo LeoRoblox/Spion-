@@ -3,355 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SP♱ON DATABASE // SECURE</title>
+    <title>SP♱ON DATABASE | SECURE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
-            --bg: #050505;
+            --bg: #030303;
             --accent-red: #ff0000;
             --accent-blue: #008cff;
             --accent-purple: #9d4edd;
-            --glass: rgba(255, 255, 255, 0.03);
+            --glass: rgba(20, 20, 20, 0.95);
             --border: rgba(255, 255, 255, 0.1);
         }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: #fff; margin: 0; overflow-x: hidden; }
 
-        /* --- ANIMATIONEN --- */
-        .fade-in { animation: fadeIn 0.5s forwards; }
-        .fade-out { animation: fadeOut 0.5s forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none; } }
+        /* --- SMOOTH ANIMATIONS --- */
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        .fade-out { animation: fadeOut 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.98); } }
 
-        /* --- BUTTON FILL ANIMATION --- */
+        /* --- BUTTON FILL ANIMATION (HOVER) --- */
         .btn-fill {
-            position: relative; padding: 12px 25px; background: transparent;
+            position: relative; padding: 12px 24px; background: transparent;
             border: 1px solid var(--border); color: white; cursor: pointer;
             overflow: hidden; z-index: 1; font-weight: bold; text-transform: uppercase;
-            display: inline-block;
+            transition: color 0.4s;
         }
         .btn-fill::before {
-            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 0;
-            z-index: -1; transition: height 0.4s ease-in-out;
+            content: ''; position: absolute; bottom: -100%; left: 0; width: 100%; height: 100%;
+            z-index: -1; transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .btn-blue::before { background: var(--accent-blue); }
         .btn-purple::before { background: var(--accent-purple); }
         .btn-red::before { background: var(--accent-red); }
-        .btn-white { border: 1px solid white; color: white; }
         .btn-white::before { background: white; }
+        
+        .btn-fill:hover::before { bottom: 0; }
         .btn-white:hover { color: black; }
-
-        .btn-fill:hover::before { height: 100%; }
-        /* Zurück-Animation nach oben beim weghovern ist im Transition-Standard enthalten */
-
-        /* --- AUTH SCREEN --- */
-        #auth-screen {
-            height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .auth-box { background: var(--glass); padding: 40px; border: 1px solid var(--border); width: 400px; border-radius: 10px; }
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: bold; }
-        .input-group input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; }
 
         /* --- NAV & PROFILE --- */
         nav {
-            padding: 20px 50px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8);
+            padding: 15px 40px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); position: sticky; top: 0; background: black; z-index: 100;
         }
-        .profile-area { position: relative; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .logo { color: var(--accent-red); font-weight: 900; font-size: 26px; letter-spacing: 2px; }
+
+        .profile-container { position: relative; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .profile-pic { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent-blue); object-fit: cover; }
+        
         .profile-dropdown {
-            position: absolute; right: 0; top: 100%; background: #111; border: 1px solid #333;
-            padding: 10px; display: none; flex-direction: column; gap: 10px; width: 150px; z-index: 1000;
+            position: absolute; right: 0; top: 60px; width: 180px; background: #111;
+            border: 1px solid #333; display: none; flex-direction: column; gap: 5px; padding: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        /* --- DASHBOARD & AKTEN --- */
+        #case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; padding: 40px; }
+        .case-preview-card {
+            background: #0a0a0a; border: 1px solid #222; padding: 25px; border-radius: 5px;
+        }
+        .case-preview-card h2 { color: white; text-transform: uppercase; margin-top: 0; }
+        .preview-text { color: lime; font-family: monospace; height: 60px; overflow: hidden; opacity: 0.7; margin-bottom: 15px; }
+
+        /* --- FULL SCREEN MODAL (AKTE ÖFFNEN) --- */
+        #akte-modal {
+            position: fixed; inset: 0; background: #050505; z-index: 2000; display: none;
+            padding: 40px; overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 20px; }
+        .stammdaten-display { 
+            background: #000; color: lime; padding: 25px; border: 1px solid #222; 
+            font-family: 'Courier New', monospace; white-space: pre; overflow-x: auto; margin: 20px 0;
         }
 
         /* --- DIENSTAUSWEIS --- */
         .id-card {
-            width: 450px; height: 260px; background: #151515; border: 2px solid #333;
-            border-radius: 15px; position: relative; padding: 20px; overflow: hidden; margin: 20px auto;
+            width: 450px; height: 260px; background: #111; border: 2px solid #333;
+            border-radius: 12px; position: relative; padding: 25px; overflow: hidden; margin: auto;
         }
-        .id-scanline {
-            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-            background: white; box-shadow: 0 0 10px white; animation: scan 3s linear infinite;
+        .scan-bar {
+            position: absolute; width: 100%; height: 3px; background: white;
+            box-shadow: 0 0 15px white; left: 0; animation: scanning 3s linear infinite;
         }
-        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
-        .id-photo { width: 120px; height: 150px; background: #222; border: 1px solid #444; object-fit: cover; }
+        @keyframes scanning { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* --- CASE FRAME --- */
-        .case-frame {
-            background: #0a0a0a; border: 2px solid var(--accent-purple); padding: 30px;
-            max-width: 900px; margin: 40px auto; border-radius: 5px;
-        }
-        .stammdaten-area {
-            width: 100%; height: 200px; background: black; color: lime;
-            font-family: 'Courier New', monospace; padding: 15px; border: 1px solid #333;
-            white-space: pre; overflow: auto;
-        }
+        /* --- BEWEISMITTEL SYSTEM --- */
+        .evidence-box { background: #111; border: 1px solid #333; padding: 15px; margin-top: 10px; }
+        .evidence-item { display: flex; align-items: center; gap: 10px; color: var(--accent-purple); font-size: 14px; margin-top: 5px; }
 
-        /* --- ADMIN PANEL --- */
-        .admin-panel { border: 2px solid var(--accent-red); padding: 20px; background: rgba(255,0,0,0.05); margin-top: 50px; }
-
-        .hidden { display: none; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div id="auth-screen">
-    <div class="auth-box fade-in">
-        <div class="input-group">
-            <label style="color: var(--accent-blue)"><i class="fas fa-user"></i> SPION NAME</label>
-            <input type="text" id="reg-name" placeholder="Name eingeben...">
+<div id="auth-screen" style="height: 100vh; display: flex; justify-content: center; align-items: center;">
+    <div class="fade-in" style="background: #0a0a0a; padding: 40px; border: 1px solid #222; width: 400px;">
+        <div style="margin-bottom: 20px;">
+            <label style="color: var(--accent-blue); display:block; margin-bottom: 5px;"><i class="fa fa-user"></i> SPION NAME</label>
+            <input type="text" id="reg-name" style="width:100%; padding:12px; background:black; border:1px solid #333; color:white;">
         </div>
-        <div class="input-group">
-            <label style="color: var(--accent-red)"><i class="fas fa-fingerprint"></i> CODE</label>
-            <input type="number" id="reg-code" placeholder="Zahlen eingeben...">
+        <div style="margin-bottom: 20px;">
+            <label style="color: var(--accent-red); display:block; margin-bottom: 5px;"><i class="fa fa-lock"></i> CODE</label>
+            <input type="number" id="reg-code" style="width:100%; padding:12px; background:black; border:1px solid #333; color:white;">
         </div>
-        <button id="auth-main-btn" class="btn-fill btn-purple" style="width: 100%" onclick="handleAuth()">REGISTRIEREN</button>
-        <p id="auth-toggle" style="text-align: center; font-size: 14px; cursor: pointer; margin-top: 15px;" onclick="toggleAuth()">
-            Du hast schon ein Spion Account? Hier einloggen.
-        </p>
+        <button id="auth-btn" class="btn-fill btn-purple" style="width: 100%" onclick="login()">REGISTRIEREN</button>
+        <p style="font-size: 12px; text-align: center; cursor: pointer; margin-top: 15px;" id="auth-toggle" onclick="toggleAuth()">Du hast schon ein Spion Account? Hier einloggen.</p>
     </div>
 </div>
 
-<div id="main-ui" class="hidden">
+<div id="main-interface" class="hidden">
     <nav>
-        <div style="color: var(--accent-red); font-weight: 900; font-size: 24px;">SP♱ON</div>
-        <div style="display: flex; gap: 20px;">
+        <div class="logo">SP♱ON</div>
+        <div style="display: flex; gap: 15px;">
             <button class="btn-fill btn-blue" onclick="showTab('dashboard')">Dashboard</button>
-            <button class="btn-fill btn-purple" onclick="showTab('create-case')">Akte Erstellen</button>
+            <button class="btn-fill btn-purple" onclick="showTab('create')">Akte Erstellen</button>
         </div>
-        <div class="profile-area" onmouseover="showProfile(true)" onmouseout="showProfile(false)">
-            <span id="nav-user-name">NAME</span>
-            <div id="p-img-nav" style="width: 40px; height: 40px; border-radius: 50%; background: #333; background-size: cover;"></div>
-            <div class="profile-dropdown" id="p-dropdown">
-                <button class="btn-fill btn-white" onclick="openSettings()">Einstellungen</button>
-                <button class="btn-fill btn-white" onclick="openID()">Dienstausweis</button>
+        <div class="profile-container" onmouseenter="toggleProfile(true)" onmouseleave="toggleProfile(false)">
+            <span id="display-username">Zynox</span>
+            <img src="https://via.placeholder.com/100" id="nav-pic" class="profile-pic">
+            <div class="profile-dropdown" id="p-drop">
+                <button class="btn-fill btn-white" onclick="openSection('settings')">Einstellungen</button>
+                <button class="btn-fill btn-white" onclick="openSection('idcard')">Dienstausweis</button>
             </div>
         </div>
     </nav>
 
-    <div class="container" style="padding: 50px;">
-        
-        <div id="tab-dashboard">
-            <div id="empty-msg" class="fade-in" style="text-align: center; margin-top: 100px; color: #444;">
-                <i class="fas fa-folder-open fa-5x"></i>
-                <h2>Es sind bisher keine Akte.</h2>
-            </div>
-            <div id="case-list"></div>
+    <div id="tab-dashboard" class="fade-in">
+        <div id="empty-state" style="text-align: center; margin-top: 100px;">
+            <i class="fa fa-folder-open fa-5x" style="color: #222;"></i>
+            <h2 style="color: #444;">Es sind bisher keine Akte.</h2>
         </div>
+        <div id="case-grid"></div>
+    </div>
 
-        <div id="tab-create-case" class="hidden">
-            <div class="case-frame fade-in">
-                <h2 style="color: var(--accent-purple)"><i class="fas fa-file-signature"></i> NEUE FALLAKTE</h2>
-                <input type="text" id="case-title" placeholder="FALL TITEL" style="width:100%; padding:10px; margin-bottom:20px; background:black; border:1px solid #333; color:white;">
-                <label>STAMMDATEN (ASCII Art Support)</label>
-                <textarea class="stammdaten-area" id="case-stammdaten"></textarea>
-                <button class="btn-fill btn-red" style="margin-top: 20px;" onclick="saveNewCase()">SPION AKTE ERSTELLEN</button>
-            </div>
-        </div>
+    <div id="tab-create" class="hidden fade-in" style="padding: 50px; max-width: 900px; margin: auto;">
+        <h2 style="color: var(--accent-purple)"><i class="fa fa-file-signature"></i> NEUE FALLAKTE</h2>
+        <input type="text" id="new-title" placeholder="TITEL DER AKTE" style="width:100%; padding:15px; background:black; border:1px solid #333; color:white; margin-bottom:20px;">
+        <textarea id="new-stammdaten" placeholder="STAMMDATEN (ASCII Art erlaubt)" style="width:100%; height:300px; background:black; border:1px solid #333; color:lime; font-family:monospace; padding:20px;"></textarea>
+        <button class="btn-fill btn-red" onclick="saveCase()">SPION AKTE ERSTELLEN</button>
+    </div>
+</div>
 
-        <div id="frame-settings" class="case-frame hidden">
-            <h3>EINSTELLUNGEN</h3>
-            <p>PROFIL BILD</p>
-            <input type="file" id="upload-p" accept="image/png, image/jpeg">
-            <p>Dienstausweis Farbe (HEX)</p>
-            <input type="color" id="id-color-picker" value="#9d4edd">
-            <button class="btn-fill btn-blue" onclick="saveSettings()">Speichern</button>
-        </div>
+<div id="akte-modal" class="fade-in">
+    <div class="modal-header">
+        <h1 id="m-title" style="color: white; margin: 0;">AKTE</h1>
+        <button class="btn-fill btn-red" onclick="closeAkte()">SCHLIESSEN</button>
+    </div>
+    <div class="stammdaten-display" id="m-data"></div>
 
-        <div id="frame-id" class="hidden">
-            <div class="id-card" id="id-card-element">
-                <div class="id-scanline"></div>
-                <div style="display: flex; gap: 20px;">
-                    <img id="id-photo-display" src="" class="id-photo">
-                    <div>
-                        <h2 id="id-name-display" style="margin:0; text-transform:uppercase;">NAME</h2>
-                        <div style="color: var(--accent-red); font-weight: bold; margin-bottom: 10px;">SPION</div>
-                        <div style="font-family: monospace; font-size: 13px;">
-                            ID: <span id="id-num-gen"></span><br>
-                            JOINED: <span id="id-date-gen"></span>
-                        </div>
-                    </div>
-                </div>
-                <div style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; opacity: 0.6;">
-                    <i class="fas fa-shield-alt"></i> OFFICIAL IDENTIFICATION
-                </div>
-                <div style="position: absolute; bottom: 10px; left: 20px; font-size: 8px; color: gray;">
-                    SPION DATABASE // SECURE CONNECTION
-                </div>
-            </div>
-        </div>
+    <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+        <button class="btn-fill btn-purple" onclick="runAI()">KI Angabe</button>
+        <button class="btn-fill btn-blue" onclick="toggleVerlauf()">Verlauf</button>
+        <button class="btn-fill btn-white" onclick="exportPDF()">PDF Export</button>
+    </div>
 
-        <div class="admin-panel fade-in">
-            <h3 style="color: var(--accent-red)">ACCOUNT ERSTELLEN (ADMIN)</h3>
-            <button class="btn-fill btn-red" onclick="document.getElementById('admin-form').classList.toggle('hidden')">Account Hinzufügen</button>
-            <div id="admin-form" class="hidden" style="margin-top: 20px; border: 1px solid #444; padding: 20px;">
-                <label>SPION NAME</label>
-                <input type="text" id="adm-name" placeholder="Name mit Sonderzeichen erlaubt...">
-                <label>SPION PASSWORT (Nur Zahlen)</label>
-                <input type="number" id="adm-pass">
-                <button class="btn-fill btn-blue" onclick="adminCreateAccount()">Account erstellen</button>
-                <div id="generated-acc" class="hidden" style="background: #111; padding: 15px; margin-top: 15px;">
-                    <p>Name: <span id="res-name"></span></p>
-                    <p>Pass: <span id="res-pass">****</span> <i class="fas fa-eye" onclick="togglePassView()"></i></p>
-                    <p style="color: var(--accent-purple)">CODE (Gültig 1 Min): <span id="minute-code">----</span></p>
-                </div>
-            </div>
+    <div id="ki-frame" class="hidden" style="background: rgba(157, 78, 221, 0.1); border: 1px solid var(--accent-purple); padding: 20px; margin-bottom: 20px;">
+        <h3 style="margin-top:0"><i class="fa fa-robot"></i> KI ZUSAMMENFASSUNG</h3>
+        <p id="ki-text" style="color: #ccc;"></p>
+    </div>
+
+    <div id="verlauf-frame" class="hidden">
+        <h3><i class="fa fa-clock"></i> VERLAUF</h3>
+        <div id="evidence-list"></div>
+        <div class="evidence-box">
+            <h4>Beweismittel hinzufügen (Max 1GB)</h4>
+            <label>Inhalt (Markdown)</label>
+            <input type="text" id="ev-content" style="width:100%; padding:10px; background:black; border:1px solid #333; color:white; margin:10px 0;">
+            <input type="file" id="ev-file" style="margin-bottom: 10px;">
+            <button class="btn-fill btn-purple" onclick="addEvidence()"><i class="fa fa-paper-plane"></i> EINTRAG SPEICHERN</button>
         </div>
     </div>
 </div>
 
+<div id="settings-modal" class="akte-modal hidden fade-in" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:5000; padding:100px;">
+    <div style="background:#111; padding:40px; max-width:500px; margin:auto; border:1px solid #333;">
+        <h2>PROFIL BILD</h2>
+        <input type="file" id="p-input" accept="image/png, image/jpeg">
+        <h2>Dienstausweis Farbe</h2>
+        <input type="color" id="id-color-input" value="#9d4edd" style="width:100%; height:50px; background:none; border:none;">
+        <br><br>
+        <button class="btn-fill btn-blue" onclick="saveSettings()">Speichern</button>
+        <button class="btn-fill btn-red" onclick="this.parentElement.parentElement.style.display='none'">Abbrechen</button>
+    </div>
+</div>
+
+<div id="id-modal" class="hidden fade-in" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:5000; padding:100px;">
+    <div class="id-card" id="main-id-card">
+        <div class="scan-bar"></div>
+        <div style="display: flex; gap: 20px;">
+            <img id="id-img" src="" style="width:120px; height:150px; border:1px solid #333; object-fit:cover;">
+            <div>
+                <h2 id="id-name" style="margin:0; font-size:28px;">NAME</h2>
+                <p style="color: var(--accent-red); font-weight:bold; margin: 5px 0;">SPION</p>
+                <div style="font-family: monospace; font-size:12px; color: #888; margin-top:15px;">
+                    ID: <span id="id-val"></span><br>
+                    JOINED: <span id="id-date"></span>
+                </div>
+            </div>
+        </div>
+        <div style="position: absolute; bottom: 15px; right: 20px; font-size: 10px; color: #444;">
+            <i class="fa fa-shield"></i> OFFICIAL IDENTIFICATION
+        </div>
+        <div style="position: absolute; bottom: 15px; left: 20px; font-size: 8px; color: #333;">
+            SPION DATABASE // SECURE CONNECTION
+        </div>
+    </div>
+    <center style="margin-top: 20px;"><button class="btn-fill btn-red" onclick="document.getElementById('id-modal').style.display='none'">SCHLIESSEN</button></center>
+</div>
+
 <script>
-    let isLoginMode = false;
-    let userData = { name: "", id: "", color: "#9d4edd", photo: "", joined: "" };
+    let isLogin = false;
+    let currentUser = { name: "", id: "", joined: "", color: "#9d4edd", pic: "" };
     let cases = [];
-    let MY_IP = ""; // Wird simuliert
 
-    // IP BYPASS
-    window.onload = async () => {
-        // Hier könnte man eine echte IP API abfragen, wir simulieren deine IP
-        const testIP = "127.0.0.1"; 
-        if(testIP === "127.0.0.1") {
-            console.log("IP erkannt. Login Bypass aktiviert.");
-            // Automatisch registrieren/einloggen
+    // IP Check Simulation
+    window.onload = () => {
+        const myIP = "127.0.0.1"; // Hier deine IP
+        if(window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+            login(true);
         }
-        updateMinuteCode();
-        setInterval(updateMinuteCode, 60000);
-    };
-
-    function toggleAuth() {
-        isLoginMode = !isLoginMode;
-        document.getElementById('auth-main-btn').innerText = isLoginMode ? "EINLOGGEN" : "REGISTRIEREN";
-        document.getElementById('auth-toggle').innerText = isLoginMode ? "Du hast noch keinen Account? Hier Registrieren." : "Du hast schon ein Spion Account? Hier einloggen.";
     }
 
-    function handleAuth() {
-        const name = document.getElementById('reg-name').value;
-        const code = document.getElementById('reg-code').value;
-        
-        if(!name || !code) return alert("Felder ausfüllen!");
+    function toggleAuth() {
+        isLogin = !isLogin;
+        document.getElementById('auth-btn').innerText = isLogin ? "EINLOGGEN" : "REGISTRIEREN";
+        document.getElementById('auth-toggle').innerText = isLogin ? "Du hast noch keinen Account? Hier Registrieren." : "Du hast schon ein Spion Account? Hier einloggen.";
+    }
 
-        userData.name = name;
-        userData.id = "SPION-" + Math.floor(10000 + Math.random() * 90000);
+    function login(bypass = false) {
+        let name = bypass ? "Zynox" : document.getElementById('reg-name').value;
+        if(!name) return;
+
+        currentUser.name = name;
+        currentUser.id = "SPION-" + Math.floor(Math.random() * 90000 + 10000);
         const d = new Date();
-        userData.joined = `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
-        
+        currentUser.joined = d.toLocaleDateString();
+
         document.getElementById('auth-screen').classList.add('fade-out');
         setTimeout(() => {
             document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-ui').classList.remove('hidden');
-            document.getElementById('nav-user-name').innerText = name;
-            document.getElementById('id-name-display').innerText = name;
-            document.getElementById('id-num-gen').innerText = userData.id;
-            document.getElementById('id-date-gen').innerText = userData.joined;
-        }, 500);
+            document.getElementById('main-interface').classList.remove('hidden');
+            document.getElementById('display-username').innerText = name;
+            document.getElementById('id-name').innerText = name;
+            document.getElementById('id-val').innerText = currentUser.id;
+            document.getElementById('id-date').innerText = currentUser.joined;
+        }, 400);
     }
 
     function showTab(tab) {
         document.getElementById('tab-dashboard').classList.add('hidden');
-        document.getElementById('tab-create-case').classList.add('hidden');
+        document.getElementById('tab-create').classList.add('hidden');
         document.getElementById('tab-' + tab).classList.remove('hidden');
     }
 
-    function showProfile(show) {
-        document.getElementById('p-dropdown').style.display = show ? 'flex' : 'none';
+    function toggleProfile(show) {
+        document.getElementById('p-drop').style.display = show ? 'flex' : 'none';
     }
 
-    function openSettings() {
-        document.getElementById('p-dropdown').classList.add('fade-out');
-        document.getElementById('frame-settings').classList.remove('hidden');
-        document.getElementById('frame-settings').classList.add('fade-in');
+    function openSection(sec) {
+        if(sec === 'settings') document.getElementById('settings-modal').style.display = 'block';
+        if(sec === 'idcard') document.getElementById('id-modal').style.display = 'block';
     }
 
     function saveSettings() {
-        const file = document.getElementById('upload-p').files[0];
-        const color = document.getElementById('id-color-picker').value;
+        const file = document.getElementById('p-input').files[0];
+        const color = document.getElementById('id-color-input').value;
         
         if(file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                userData.photo = e.target.result;
-                document.getElementById('p-img-nav').style.backgroundImage = `url(${e.target.result})`;
-                document.getElementById('id-photo-display').src = e.target.result;
+                document.getElementById('nav-pic').src = e.target.result;
+                document.getElementById('id-img').src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
+        document.getElementById('main-id-card').style.borderColor = color;
+        document.getElementById('settings-modal').style.display = 'none';
+    }
+
+    function saveCase() {
+        const title = document.getElementById('new-title').value;
+        const data = document.getElementById('new-stammdaten').value;
+        if(!title || !data) return;
+
+        cases.push({ title, data, evidence: [] });
+        document.getElementById('new-title').value = "";
+        document.getElementById('new-stammdaten').value = "";
         
-        userData.color = color;
-        document.getElementById('id-card-element').style.borderColor = color;
-        
-        document.getElementById('frame-settings').classList.add('fade-out');
-        setTimeout(() => document.getElementById('frame-settings').classList.add('hidden'), 500);
-    }
-
-    function openID() {
-        document.getElementById('frame-id').classList.toggle('hidden');
-        document.getElementById('frame-id').classList.add('fade-in');
-    }
-
-    function updateMinuteCode() {
-        const code = Math.floor(1000 + Math.random() * 9000);
-        if(document.getElementById('minute-code')) document.getElementById('minute-code').innerText = code;
-    }
-
-    function adminCreateAccount() {
-        const n = document.getElementById('adm-name').value;
-        const p = document.getElementById('adm-pass').value;
-        document.getElementById('res-name').innerText = n;
-        document.getElementById('res-pass').innerText = p;
-        document.getElementById('generated-acc').classList.remove('hidden');
-    }
-
-    function togglePassView() {
-        const p = document.getElementById('res-pass');
-        p.innerText = p.innerText === "****" ? document.getElementById('adm-pass').value : "****";
-    }
-
-    function saveNewCase() {
-        const title = document.getElementById('case-title').value;
-        const data = document.getElementById('case-stammdaten').value;
-        if(!title) return;
-
-        cases.push({ title, data, user: userData.name });
         renderDashboard();
         showTab('dashboard');
     }
 
     function renderDashboard() {
-        const list = document.getElementById('case-list');
-        const empty = document.getElementById('empty-msg');
-        list.innerHTML = "";
+        const grid = document.getElementById('case-grid');
+        const empty = document.getElementById('empty-state');
+        grid.innerHTML = "";
         
         if(cases.length > 0) empty.classList.add('hidden');
+        else empty.classList.remove('hidden');
 
         cases.forEach((c, i) => {
-            const card = document.createElement('div');
-            card.className = "case-frame fade-in";
-            card.innerHTML = `
-                <h2 style="color:var(--accent-red)">${c.title}</h2>
-                <div class="stammdaten-area">${c.data.substring(0, 100)}...</div>
-                <button class="btn-fill btn-purple" onclick="openFullCase(${i})">AKTE ÖFFNEN</button>
-                <p style="font-size:10px; color:gray">Erstellt von: ${c.user}</p>
-                <button class="btn-fill btn-red" style="padding:5px; font-size:10px;" onclick="deleteCase(${i})">LÖSCHEN</button>
+            grid.innerHTML += `
+                <div class="case-preview-card fade-in">
+                    <h2>${c.title}</h2>
+                    <div class="preview-text">${c.data}</div>
+                    <button class="btn-fill btn-purple" style="width:100%" onclick="openAkte(${i})">AKTE ÖFFNEN</button>
+                </div>
             `;
-            list.appendChild(card);
         });
     }
 
-    function openFullCase(i) {
-        const c = cases[i];
-        // KI Zusammenfassung Simulation
-        const summary = "KI ANALYSE: Das Dokument '" + c.title + "' enthält verschlüsselte Stammdaten. Relevanzstufe: Hoch.";
-        alert("KI ZUSAMMENFASSUNG:\n\n" + summary);
+    let activeAkteIndex = null;
+    function openAkte(index) {
+        activeAkteIndex = index;
+        const c = cases[index];
+        document.getElementById('m-title').innerText = c.title;
+        document.getElementById('m-data').innerText = c.data;
+        document.getElementById('akte-modal').style.display = 'block';
+        renderEvidence();
     }
 
-    function deleteCase(i) {
-        if(userData.name === "Zynox" || cases[i].user === userData.name) {
-            cases.splice(i, 1);
-            renderDashboard();
-        } else {
-            alert("Keine Berechtigung!");
-        }
+    function closeAkte() {
+        document.getElementById('akte-modal').style.display = 'none';
+        document.getElementById('ki-frame').classList.add('hidden');
+        document.getElementById('verlauf-frame').classList.add('hidden');
+    }
+
+    function runAI() {
+        const ki = document.getElementById('ki-frame');
+        ki.classList.remove('hidden');
+        document.getElementById('ki-text').innerText = "KI ANALYSE: Das Dokument '" + cases[activeAkteIndex].title + "' wurde analysiert. Es enthält wichtige Stammdaten über operative Ziele. Status: Gesichert.";
+    }
+
+    function toggleVerlauf() {
+        document.getElementById('verlauf-frame').classList.toggle('hidden');
+    }
+
+    function addEvidence() {
+        const content = document.getElementById('ev-content').value;
+        const file = document.getElementById('ev-file').files[0];
+        if(!content) return;
+
+        cases[activeAkteIndex].evidence.push({ content, fileName: file ? file.name : "Keine Datei" });
+        renderEvidence();
+    }
+
+    function renderEvidence() {
+        const list = document.getElementById('evidence-list');
+        list.innerHTML = "";
+        cases[activeAkteIndex].evidence.forEach(e => {
+            list.innerHTML += `
+                <div class="evidence-box">
+                    <p>${e.content}</p>
+                    <div class="evidence-item"><i class="fa fa-paperclip"></i> BEWEISMITTEL: ${e.fileName}</div>
+                </div>
+            `;
+        });
+    }
+
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text(document.getElementById('m-title').innerText, 10, 10);
+        doc.text(document.getElementById('m-data').innerText, 10, 20);
+        doc.save("Akte.pdf");
     }
 </script>
 </body>
