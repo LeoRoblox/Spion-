@@ -3,320 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SP♱ON | DATABASE V2</title>
+    <title>SP♱ON | ULTIMATE DATABASE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-dark: #050505;
-            --glass: rgba(20, 20, 20, 0.9);
-            --accent-red: #ff2a2a;
-            --accent-blue: #00a2ff;
-            --accent-purple: #a55eea;
-            --border: rgba(255, 255, 255, 0.1);
+            --bg: #030303;
+            --panel: #0a0a0a;
+            --accent-red: #ff3c3c;
+            --accent-blue: #0095ff;
+            --accent-purple: #9d4edd;
+            --text: #e0e0e0;
+            --border: rgba(255, 255, 255, 0.08);
         }
 
-        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        * { box-sizing: border-box; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
 
-        body {
-            background-color: var(--bg-dark);
-            color: #e0e0e0;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            min-height: 100vh;
+        /* --- ANIMATION CLASSES --- */
+        .fade-in { animation: fadeIn 0.6s forwards; }
+        .fade-out { animation: fadeOut 0.5s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 70px;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 50px; border-bottom: 1px solid var(--border); z-index: 100;
         }
 
-        /* --- ANIMATIONEN --- */
-        .fade-in { opacity: 1; transform: translateY(0); }
-        .hidden { display: none !important; opacity: 0; transform: translateY(20px); }
-
-        /* --- LOGIN SCREEN --- */
-        #auth-overlay {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            background: radial-gradient(circle, #111 0%, #000 100%);
-        }
-
-        .auth-card {
-            background: var(--glass);
-            padding: 40px;
-            border: 1px solid var(--border);
-            width: 400px;
-            border-radius: 5px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
-
-        /* --- BUTTON FILL ANIMATION --- */
         .btn-fill {
-            position: relative;
-            padding: 12px 24px;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: white;
-            cursor: pointer;
-            overflow: hidden;
-            z-index: 1;
-            font-weight: bold;
-            display: inline-block;
-            text-align: center;
+            position: relative; padding: 10px 22px; background: transparent;
+            border: 1px solid var(--border); color: white; cursor: pointer;
+            overflow: hidden; z-index: 1; font-weight: 600; text-transform: uppercase;
         }
-
         .btn-fill::before {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 0;
-            z-index: -1;
-            transition: height 0.4s ease;
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 0;
+            z-index: -1; transition: height 0.4s ease;
         }
-
         .btn-blue::before { background: var(--accent-blue); }
         .btn-purple::before { background: var(--accent-purple); }
         .btn-red::before { background: var(--accent-red); }
-
         .btn-fill:hover::before { height: 100%; }
-        .btn-fill:hover { border-color: transparent; }
+        .btn-fill:hover { border-color: transparent; box-shadow: 0 0 15px rgba(255,255,255,0.1); }
 
-        /* --- MAIN INTERFACE (Vorerst versteckt) --- */
-        #main-interface { padding-top: 80px; }
-
-        nav {
-            position: fixed;
-            top: 0; width: 100%;
-            height: 70px;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
-            border-bottom: 1px solid var(--border);
-            z-index: 900;
+        /* --- AUTH SCREEN --- */
+        #auth-overlay {
+            position: fixed; inset: 0; background: var(--bg);
+            display: flex; justify-content: center; align-items: center; z-index: 2000;
+        }
+        .auth-card {
+            background: var(--panel); padding: 40px; border: 1px solid var(--border);
+            width: 400px; text-align: center; border-radius: 8px;
         }
 
-        /* --- SEARCH BAR --- */
-        .search-container {
-            width: 50%;
-            margin: 20px auto;
-            position: relative;
-        }
-
+        /* --- DASHBOARD & SEARCH --- */
+        .content-container { padding: 100px 50px; max-width: 1400px; margin: auto; }
+        .search-wrapper { position: relative; margin-bottom: 40px; text-align: center; }
         .search-bar {
-            width: 100%;
-            padding: 15px 45px;
-            background: var(--glass);
-            border: 1px solid var(--border);
-            color: white;
-            border-radius: 30px;
+            width: 60%; padding: 15px 50px; background: var(--panel);
+            border: 1px solid var(--border); color: white; border-radius: 50px;
+            font-size: 16px;
         }
 
-        .search-bar:focus { border-color: var(--accent-blue); outline: none; }
-
-        /* --- DASHBOARD AKTEN --- */
-        #dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            padding: 40px;
-        }
-
+        /* --- CASE CARDS --- */
+        #dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }
         .case-card {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: 5px;
-            position: relative;
+            background: var(--panel); border: 1px solid var(--border);
+            padding: 25px; border-radius: 4px; position: relative;
+        }
+        .case-card:hover { border-color: var(--accent-purple); transform: translateY(-5px); }
+        .case-card h2 { margin: 0 0 10px 0; font-size: 1.5em; letter-spacing: 1px; }
+        .case-teaser { 
+            font-family: 'Courier New', monospace; font-size: 0.9em; color: #777;
+            height: 80px; overflow: hidden; margin-bottom: 20px; white-space: pre-wrap;
         }
 
-        .case-card h2 { color: white; margin: 0 0 10px 0; text-transform: uppercase; font-size: 1.2em; }
-        .case-preview {
-            font-family: 'Courier New', monospace;
-            font-size: 0.8em;
-            color: #888;
-            height: 60px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            white-space: pre-wrap;
-        }
+        /* --- EMPTY STATE --- */
+        .empty-state { text-align: center; margin-top: 100px; color: #333; }
+        .empty-state i { font-size: 80px; margin-bottom: 20px; }
 
-        /* --- DIENSTAUSWEIS --- */
-        .id-card {
-            width: 450px;
-            height: 250px;
-            background: #111;
-            margin: 20px auto;
-            border: 1px solid #333;
-            border-radius: 10px;
-            position: relative;
-            padding: 20px;
-            overflow: hidden;
+        /* --- FULL FILE MODAL --- */
+        #file-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            z-index: 3000; display: none; padding: 50px; overflow-y: auto;
         }
-
-        .scanline {
-            width: 100%;
-            height: 2px;
-            background: rgba(255,255,255,0.6);
-            position: absolute;
-            top: 0; left: 0;
-            box-shadow: 0 0 10px white;
-            animation: moveScan 3s linear infinite;
-        }
-
-        @keyframes moveScan {
-            0% { top: 0%; }
-            100% { top: 100%; }
-        }
-
-        input[type="text"], input[type="number"], textarea {
-            width: 100%;
-            background: #000;
-            border: 1px solid var(--border);
-            color: white;
-            padding: 10px;
-            margin: 10px 0;
-        }
+        .modal-content { max-width: 1000px; margin: auto; background: var(--panel); padding: 40px; border: 1px solid var(--border); }
+        .ki-box { background: rgba(157, 78, 221, 0.1); border: 1px solid var(--accent-purple); padding: 20px; margin: 20px 0; border-radius: 5px; }
 
     </style>
 </head>
 <body>
 
 <div id="auth-overlay">
-    <div class="auth-card">
-        <h2 style="color:var(--accent-red); text-align:center;">SP♱ON ACCESS</h2>
-        <div id="auth-form">
-            <div style="color:var(--accent-blue); margin-bottom:5px;"><i class="fa fa-user"></i> SPION NAME</div>
-            <input type="text" id="username" placeholder="Name...">
-            
-            <div style="color:var(--accent-red); margin-bottom:5px;"><i class="fa fa-key"></i> CODE</div>
-            <input type="number" id="usercode" placeholder="Zahlencode...">
-            
-            <button class="btn-fill btn-purple" onclick="login()" style="width:100%; margin-top:15px;">REGISTRIEREN</button>
-            <p style="text-align:center; font-size:12px; cursor:pointer;" onclick="toggleAuthMode()">Du hast schon einen Account? Einloggen.</p>
-        </div>
-        <div id="ip-message" class="hidden" style="text-align:center;">
-            <i class="fa fa-shield-check fa-2x" style="color:var(--accent-blue)"></i>
-            <p>IP ADRESSE ERKANNT. <br> LOGGE DIREKT EIN...</p>
+    <div class="auth-card fade-in">
+        <h2 id="auth-status" style="color:var(--accent-red)">SECURE LOGIN</h2>
+        <div id="login-inputs">
+            <div style="text-align:left; color:var(--accent-blue); font-size:12px; margin-bottom:5px;">SPION NAME</div>
+            <input type="text" id="spion-name" style="width:100%; padding:10px; background:#000; border:1px solid #333; color:white; margin-bottom:20px;">
+            <div style="text-align:left; color:var(--accent-red); font-size:12px; margin-bottom:5px;">CODE (NUMS ONLY)</div>
+            <input type="number" id="spion-code" style="width:100%; padding:10px; background:#000; border:1px solid #333; color:white; margin-bottom:20px;">
+            <button class="btn-fill btn-purple" style="width:100%" onclick="accessSystem()">REGISTRIEREN</button>
         </div>
     </div>
 </div>
 
-<div id="main-interface" class="hidden">
-    <nav>
-        <div style="color:var(--accent-red); font-weight:bold; font-size:24px;">SP♱ON</div>
-        <div>
-            <button class="btn-fill btn-blue" onclick="showSection('dashboard')">Dashboard</button>
-            <button class="btn-fill btn-purple" onclick="showSection('create-case')">Akte Erstellen</button>
-        </div>
-        <div id="user-profile" style="cursor:pointer; color:var(--accent-blue)">
-            <span id="nav-username">Zynox</span> <i class="fa fa-caret-down"></i>
-        </div>
-    </nav>
+<nav id="main-nav" class="hidden">
+    <div style="color:var(--accent-red); font-weight:900; letter-spacing:3px;">SP♱ON</div>
+    <div>
+        <button class="btn-fill btn-blue" onclick="showPage('dashboard')">Dashboard</button>
+        <button class="btn-fill btn-purple" onclick="showPage('create')">Akte Erstellen</button>
+    </div>
+    <div style="color:var(--accent-blue)" id="user-display">Agent: -</div>
+</nav>
 
-    <div id="section-dashboard">
-        <div class="search-container">
-            <i class="fa fa-search" style="position:absolute; left:15px; top:18px; color:gray;"></i>
-            <input type="text" class="search-bar" id="caseSearch" placeholder="Akte nach Titel suchen..." onkeyup="filterCases()">
+<div class="content-container hidden" id="main-content">
+    
+    <div id="page-dashboard">
+        <div class="search-wrapper">
+            <input type="text" class="search-bar" id="search" placeholder="Akte suchen..." onkeyup="searchFiles()">
         </div>
         <div id="dashboard-grid">
             </div>
     </div>
 
-    <div id="section-create-case" class="hidden" style="padding: 40px; max-width: 800px; margin: auto;">
-        <h2 style="color:var(--accent-purple)"><i class="fa fa-file-signature"></i> NEUE FALLAKTE</h2>
-        <input type="text" id="case-title" placeholder="FALL TITEL">
-        <textarea id="case-data" placeholder="STAMMDATEN (ASCII Art ok)"></textarea>
-        <button class="btn-fill btn-red" onclick="saveCase()">SPION AKTE ERSTELLEN</button>
+    <div id="page-create" class="hidden">
+        <h2 style="color:var(--accent-purple)">NEUE FALLAKTE ERSTELLEN</h2>
+        <input type="text" id="new-title" placeholder="FALL TITEL" style="width:100%; padding:15px; background:black; border:1px solid #333; color:white; margin-bottom:20px;">
+        <textarea id="new-data" placeholder="STAMMDATEN (ASCII Art & Text)" style="width:100%; height:300px; background:black; border:1px solid #333; color:lime; font-family:monospace; padding:20px;"></textarea>
+        <button class="btn-fill btn-red" onclick="createFile()">SPION AKTE ERSTELLEN</button>
+    </div>
+</div>
+
+<div id="file-modal" class="fade-in">
+    <div class="modal-content">
+        <button class="btn-fill btn-red" onclick="closeFile()" style="float:right">SCHLIESSEN</button>
+        <h1 id="m-title" style="color:white; font-size:40px;">-</h1>
+        <hr style="border:0; border-top:1px solid #333;">
+        <div class="ki-box">
+            <h3 style="margin-top:0"><i class="fa fa-robot"></i> KI ZUSAMMENFASSUNG</h3>
+            <p id="m-ki">Analysiere Daten...</p>
+        </div>
+        <h3>STAMMDATEN</h3>
+        <pre id="m-data" style="background:#000; padding:20px; border:1px solid #222; overflow-x:auto; color:lime"></pre>
+        
+        <div style="margin-top:40px;">
+            <h3><i class="fa fa-clock"></i> VERLAUF</h3>
+            <div style="border-left:2px solid var(--accent-blue); padding-left:20px;">
+                <p style="color:gray">System: Akte wurde registriert am <span id="m-date"></span></p>
+            </div>
+        </div>
+        <button class="btn-fill btn-blue" style="margin-top:30px;"><i class="fa fa-file-pdf"></i> PDF EXPORT</button>
     </div>
 </div>
 
 <script>
-    // --- KONFIGURATION & IP CHECK ---
-    const MY_IP = "127.0.0.1"; // Hier deine IP eintragen
-    let currentUser = "";
+    let spion_name = "";
+    let all_files = [];
+    const MY_IP = "127.0.0.1"; // DEINE IP HIER
 
-    window.onload = function() {
-        // Simulierter IP Check
-        setTimeout(() => {
-            // In einer echten App würde hier ein Fetch zur IP-API kommen
-            const userIP = "127.0.0.1"; 
-            if(userIP === MY_IP) {
-                document.getElementById('auth-form').classList.add('hidden');
-                document.getElementById('ip-message').classList.remove('hidden');
-                setTimeout(() => { login(true); }, 1500);
-            }
-        }, 1000);
-    };
-
-    // --- NAVIGATION ---
-    function showSection(id) {
-        document.getElementById('section-dashboard').classList.add('hidden');
-        document.getElementById('section-create-case').classList.add('hidden');
-        document.getElementById('section-' + id).classList.remove('hidden');
+    window.onload = () => {
+        // IP CHECK SIMULATION
+        if(window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") {
+            document.getElementById('auth-status').innerText = "IP ERKANNT - ZUGRIFF...";
+            setTimeout(() => { accessSystem(true); }, 1000);
+        }
     }
 
-    // --- LOGIN FUNKTION ---
-    function login(bypass = false) {
-        if(!bypass) {
-            currentUser = document.getElementById('username').value;
-            if(!currentUser) return alert("Name erforderlich!");
-        } else {
-            currentUser = "Master-Admin";
-        }
-        
-        document.getElementById('nav-username').innerText = currentUser;
-        document.getElementById('auth-overlay').style.opacity = "0";
+    function accessSystem(bypass = false) {
+        spion_name = bypass ? "Zynox (Admin)" : document.getElementById('spion-name').value;
+        if(!spion_name) return;
+
+        document.getElementById('auth-overlay').classList.add('fade-out');
         setTimeout(() => {
-            document.getElementById('auth-overlay').classList.add('hidden');
-            document.getElementById('main-interface').classList.remove('hidden');
+            document.getElementById('auth-overlay').style.display = 'none';
+            document.getElementById('main-nav').classList.remove('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            document.getElementById('user-display').innerText = "Agent: " + spion_name;
             renderDashboard();
         }, 500);
     }
 
-    // --- AKTEN MANAGEMENT ---
-    let cases = [
-        { title: "OPERATION NIGHTFALL", data: "██╗░░██╗░█████╗░\nTarget: Unknown\nPriority: High" },
-        { title: "Zynox Dossier", data: "Inhaber der ParadoxDB.\nLevel: 5\nStatus: Active" }
-    ];
+    function showPage(page) {
+        document.getElementById('page-dashboard').classList.add('hidden');
+        document.getElementById('page-create').classList.add('hidden');
+        document.getElementById('page-' + page).classList.remove('hidden');
+        document.getElementById('page-' + page).classList.add('fade-in');
+    }
 
-    function saveCase() {
-        const title = document.getElementById('case-title').value;
-        const data = document.getElementById('case-data').value;
-        if(title && data) {
-            cases.push({ title, data });
-            alert("Akte wurde im System verschlüsselt!");
-            showSection('dashboard');
-            renderDashboard();
-        }
+    function createFile() {
+        const title = document.getElementById('new-title').value;
+        const data = document.getElementById('new-data').value;
+        if(!title || !data) return;
+
+        const newFile = {
+            title: title,
+            data: data,
+            date: new Date().toLocaleString(),
+            id: Math.random().toString(36).substr(2, 9)
+        };
+
+        all_files.push(newFile);
+        document.getElementById('new-title').value = "";
+        document.getElementById('new-data').value = "";
+        showPage('dashboard');
+        renderDashboard();
     }
 
     function renderDashboard() {
         const grid = document.getElementById('dashboard-grid');
         grid.innerHTML = "";
-        cases.forEach((c, index) => {
+
+        if(all_files.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-state fade-in" style="grid-column: 1/-1;">
+                    <i class="fa fa-folder-open"></i>
+                    <h2>Es sind bisher keine Akte.</h2>
+                    <p>Erstelle eine neue Akte im Menü.</p>
+                </div>`;
+            return;
+        }
+
+        all_files.forEach((file, index) => {
             grid.innerHTML += `
-                <div class="case-card">
-                    <div style="font-size:10px; color:var(--accent-red)">SECURE FILE #${index+100}</div>
-                    <h2>${c.title}</h2>
-                    <div class="case-preview">${c.data}</div>
-                    <button class="btn-fill btn-purple" style="width:100%" onclick="alert('Öffne Akte: ${c.title}')">AKTE ÖFFNEN</button>
+                <div class="case-card fade-in" style="animation-delay: ${index * 0.1}s">
+                    <div style="color:var(--accent-red); font-size:10px; margin-bottom:10px;">ID: ${file.id.toUpperCase()}</div>
+                    <h2 style="font-weight:bold">${file.title}</h2>
+                    <div class="case-teaser">${file.data.substring(0, 150)}...</div>
+                    <button class="btn-fill btn-purple" style="width:100%" onclick="openFile('${file.id}')">AKTE ÖFFNEN</button>
                 </div>
             `;
         });
     }
 
-    function filterCases() {
-        let input = document.getElementById('caseSearch').value.toUpperCase();
-        let cards = document.getElementsByClassName('case-card');
-        for (let i = 0; i < cards.length; i++) {
-            let title = cards[i].getElementsByTagName("h2")[0];
-            if (title.innerText.toUpperCase().indexOf(input) > -1) {
-                cards[i].style.display = "";
-            } else {
-                cards[i].style.display = "none";
-            }
-        }
+    function openFile(id) {
+        const file = all_files.find(f => f.id === id);
+        document.getElementById('m-title').innerText = file.title;
+        document.getElementById('m-data').innerText = file.data;
+        document.getElementById('m-date').innerText = file.date;
+        document.getElementById('m-ki').innerText = "KI ZUSAMMENFASSUNG: Diese Akte enthält Informationen über " + file.title + ". Die Stammdaten wurden am " + file.date + " von " + spion_name + " sicher hinterlegt.";
+        
+        const modal = document.getElementById('file-modal');
+        modal.style.display = 'block';
+    }
+
+    function closeFile() {
+        document.getElementById('file-modal').style.display = 'none';
+    }
+
+    function searchFiles() {
+        let query = document.getElementById('search').value.toLowerCase();
+        let cards = document.querySelectorAll('.case-card');
+        cards.forEach(card => {
+            let title = card.querySelector('h2').innerText.toLowerCase();
+            card.style.display = title.includes(query) ? "block" : "none";
+        });
     }
 </script>
+
 </body>
 </html>
