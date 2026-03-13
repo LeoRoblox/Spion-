@@ -458,25 +458,24 @@
      FIREBASE MODULE SCRIPT
      ======================================================= -->
 <script type="module">
-    // IMPORT FIREBASE v10
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  // GENAU HIER KOMMEN DIE IMPORTS REIN:
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // HIER DEINE FIREBASE CONFIG EINFÜGEN
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    const firebaseConfig = {
-        apiKey: "DEIN_API_KEY_HIER_EINTRAGEN", // <-- WICHTIG: Nicht vergessen, den echten Key einzutragen!
-        authDomain: "spion-b4441.firebaseapp.com",
-        databaseURL: "https://spion-b4441-default-rtdb.europe-west1.firebasedatabase.app/", // <-- HIER IST DIE DATABASE URL
-        projectId: "spion-b4441",
-        storageBucket: "spion-b4441.appspot.com",
-        messagingSenderId: "923394943597",
-        appId: "1:923394943597:web:0dfb5d9cecdbe2196e6d64"
-    };
+  // Danach kommt erst deine Config:
+  const firebaseConfig = {
+    apiKey: "AIzaSyADAcQUu3oWQKCOF8bWl-SUcXbZXMbfzXc",
+    authDomain: "spion-b4441.firebaseapp.com",
+    projectId: "spion-b4441",
+    storageBucket: "spion-b4441.firebasestorage.app",
+    messagingSenderId: "923394943597",
+    appId: "1:923394943597:web:0dfb5d9cecdbe2196e6d64",
+    measurementId: "G-MB7SS1NDWD"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  // Und dann die Aktivierung:
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
     // --- STATE ---
     let activeUser = JSON.parse(localStorage.getItem('ios_fb_active')) || null;
