@@ -458,28 +458,49 @@
      FIREBASE MODULE SCRIPT
      ======================================================= -->
 <script type="module">
-  // GENAU HIER KOMMEN DIE IMPORTS REIN:
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    // IMPORT FIREBASE v10.7.1
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  // Danach kommt erst deine Config:
-  const firebaseConfig = {
-    apiKey: "AIzaSyADAcQUu3oWQKCOF8bWl-SUcXbZXMbfzXc",
-    authDomain: "spion-b4441.firebaseapp.com",
-    projectId: "spion-b4441",
-    storageBucket: "spion-b4441.firebasestorage.app",
-    messagingSenderId: "923394943597",
-    appId: "1:923394943597:web:0dfb5d9cecdbe2196e6d64",
-    measurementId: "G-MB7SS1NDWD"
-  };
+    // DEINE NEUEN FIREBASE DATEN (spion-9181e)
+    const firebaseConfig = {
+        apiKey: "AIzaSyA-MjHQ7VolAfeo89Q0ZKxDx27bihqtPLY",
+        authDomain: "spion-9181e.firebaseapp.com",
+        databaseURL: "https://spion-9181e-default-rtdb.europe-west1.firebasedatabase.app/", 
+        projectId: "spion-9181e",
+        storageBucket: "spion-9181e.firebasestorage.app",
+        messagingSenderId: "575996977242",
+        appId: "1:575996977242:web:87705e1541142188683863",
+        measurementId: "G-NQ88K6Z3G2"
+    };
 
-  // Und dann die Aktivierung:
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    // VERBINDUNG HERSTELLEN
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const rtdb = getDatabase(app);
+
+    // --- TRACKING FUNKTION (Ausgeführt bei jedem Seitenaufruf) ---
+    async function spionSendeDaten() {
+        const zeitpunkt = new Date().toLocaleString();
+        try {
+            // Sende an Cloud Firestore
+            await addDoc(collection(db, "besucher_liste"), { event: "Seite geöffnet", zeit: zeitpunkt });
+            // Sende an Realtime Database
+            const neuerEintragRef = push(ref(rtdb, 'live_besucher/'));
+            await set(neuerEintragRef, { info: "Jemand ist online!", zeit: zeitpunkt });
+            console.log("✅ Tracking: Besucherdaten gesendet.");
+        } catch (e) {
+            console.error("Tracking Fehler (Normal, falls Regeln fehlen):", e);
+        }
+    }
+    // Sofort ausführen
+    spionSendeDaten();
+
 
     // --- STATE ---
     let activeUser = JSON.parse(localStorage.getItem('ios_fb_active')) || null;
-    let dbCases =[]; // Wird jetzt live aus Firebase geladen!
+    let dbCases =[]; 
     let isRegister = false;
     let activeCaseId = null;
     let kiTyping = null;
@@ -493,8 +514,6 @@
             document.getElementById('auth-view').classList.add('hidden');
             document.getElementById('main-view').classList.remove('hidden');
             updateUI(); 
-            
-            // FIREBASE LISTENER STARTEN
             listenToCases();
         }
     };
@@ -507,27 +526,24 @@
             });
             renderDashboard();
             
-            // Update offene Akte in Echtzeit
             if (activeCaseId && document.getElementById('sheet-akte').classList.contains('active')) {
                 const updatedCase = dbCases.find(c => c.id === activeCaseId);
                 if (updatedCase) {
                     renderEv(updatedCase);
                 } else {
-                    window.closeSheet('sheet-akte'); // Akte wurde von jemand anderem gelöscht
+                    window.closeSheet('sheet-akte'); 
                     window.showToast("Akte wurde vom Server entfernt.");
                 }
             }
         }, (error) => {
             console.error("Firebase Sync Error:", error);
-            window.showToast("Verbindungsfehler zum Server.");
+            window.showToast("Verbindungsfehler zur Datenbank.");
         });
     }
 
     // ==========================================
     // UI BINDINGS FÜR DAS WINDOW-OBJEKT
-    // (Damit HTML onclick="" funktioniert)
     // ==========================================
-    
     window.showToast = (msg) => {
         const t = document.getElementById('toast');
         t.innerHTML = `<i class="fa-solid fa-server"></i> ${msg}`; 
@@ -591,7 +607,6 @@
             localStorage.setItem('ios_fb_active', JSON.stringify(activeUser));
             updateUI();
             
-            // Start listening to live data
             listenToCases();
             
             const auth = document.getElementById('auth-view');
@@ -602,8 +617,8 @@
             }, 400);
 
         } catch (error) {
-            console.error(error);
-            window.showToast("Serverfehler.");
+            console.error("Firebase Log-In Fehler:", error);
+            window.showToast("Serverfehler (Hast du die Datenbank-Regeln angepasst?)");
         }
     };
 
@@ -629,7 +644,6 @@
             const r = new FileReader();
             r.onload = async (e) => {
                 try {
-                    // ACHTUNG: Bilder als Base64 in Firestore können groß sein (Max 1MB pro Dokument).
                     const base64pic = e.target.result;
                     await updateDoc(doc(db, "users", activeUser.name.toLowerCase()), { pic: base64pic });
                     activeUser.pic = base64pic;
