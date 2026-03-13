@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SPION OS // Liquid System</title>
+    <title>SPION OS // Liquid Firebase</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* =========================================
@@ -241,13 +241,12 @@
         
         .ai-text { color: rgba(255,255,255,0.9); line-height: 1.6; font-size: 16px; white-space: pre-wrap; }
         
-        /* IMAGE CONSTRAINTS IN EVIDENCE */
+        /* IMAGE CONSTRAINTS */
         .evidence-img {
             max-width: 100%;
-            max-height: 280px; /* VERHINDERT RIESIGE BILDER */
+            max-height: 280px; 
             object-fit: contain;
-            border-radius: 12px;
-            margin-top: 12px;
+            border-radius: 12px; margin-top: 12px;
             border: 0.5px solid rgba(255,255,255,0.1);
             background: rgba(0,0,0,0.3);
         }
@@ -269,17 +268,17 @@
         <div style="text-align: center; margin-bottom: 40px; animation: fadeUp 0.8s var(--spring);">
             <i class="fa-solid fa-crosshairs" style="font-size: 50px; color: var(--sys-blue); margin-bottom: 20px; text-shadow: 0 0 20px rgba(10,132,255,0.5);"></i>
             <h1 id="auth-title" style="font-size: 34px; font-weight: 800; letter-spacing: -0.5px;">SPION OS</h1>
-            <p id="auth-sub" style="color: var(--sys-sec); font-size: 16px; margin-top: 8px;">Identifikation erforderlich</p>
+            <p id="auth-sub" style="color: var(--sys-sec); font-size: 16px; margin-top: 8px;">Firebase Server Access</p>
         </div>
         
         <div class="list-group" style="animation: fadeUp 0.8s var(--spring) 0.1s backwards;">
             <div class="list-item">
                 <span style="font-size: 17px;">Agenten Name</span>
-                <input type="text" id="auth-name" placeholder="Name eingeben">
+                <input type="text" id="auth-name" placeholder="z.B. Zynox">
             </div>
             <div class="list-item">
                 <span style="font-size: 17px;">Passcode</span>
-                <input type="password" id="auth-pass" placeholder="Erforderlich">
+                <input type="password" id="auth-pass" placeholder="Sicherheitsschlüssel">
             </div>
         </div>
 
@@ -298,7 +297,7 @@
         
         <nav class="liquid-glass">
             <div style="font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-shield-halved"></i> System
+                <i class="fa-solid fa-shield-halved"></i> SPION
             </div>
             <div style="display: flex; gap: 12px; align-items: center;">
                 <button class="btn" onclick="switchTab('dashboard')"><i class="fa-solid fa-list"></i> Akten</button>
@@ -322,8 +321,8 @@
             <div id="case-grid" class="grid"></div>
             
             <div id="empty-msg" class="hidden" style="text-align: center; margin-top: 60px;">
-                <i class="fa-regular fa-folder-open" style="font-size: 60px; color: var(--sys-tertiary); margin-bottom: 20px;"></i>
-                <h3 style="font-size: 22px; font-weight: 600;">Keine Einträge</h3>
+                <i class="fa-solid fa-server" style="font-size: 60px; color: var(--sys-tertiary); margin-bottom: 20px;"></i>
+                <h3 style="font-size: 22px; font-weight: 600;">Keine Server-Einträge</h3>
                 <p style="color: var(--sys-sec); font-size: 16px; margin-top: 8px;">Das Archiv ist leer.</p>
             </div>
         </div>
@@ -355,7 +354,7 @@
                 <textarea class="ios-input" id="case-data" placeholder="Beobachtungen und Fakten hier dokumentieren..."></textarea>
             </div>
             
-            <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 18px; font-size: 17px; border-radius: 16px; margin-top: 10px;" onclick="saveCase()">In Datenbank verschlüsseln</button>
+            <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 18px; font-size: 17px; border-radius: 16px; margin-top: 10px;" onclick="saveCase()">Zum Server übertragen</button>
         </div>
     </div>
 </div>
@@ -420,9 +419,7 @@
             
             <!-- ADMIN & OWNER ACTIONS -->
             <div id="m-admin-actions" class="hidden list-group" style="background: transparent; border: none; backdrop-filter: none; margin-bottom: 20px;">
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="m-action-buttons">
-                    <!-- Buttons Injected here via JS -->
-                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="m-action-buttons"></div>
             </div>
             
             <div class="list-group">
@@ -457,64 +454,99 @@
     </div>
 </div>
 
-<script>
-    // ==========================================
-    // DATABASE & STATE
-    // ==========================================
-    let dbUsers = JSON.parse(localStorage.getItem('ios26_users')) ||[];
-    let dbCases = JSON.parse(localStorage.getItem('ios26_cases')) ||[];
-    let activeUser = JSON.parse(localStorage.getItem('ios26_active')) || null;
-    
+<!-- =======================================================
+     FIREBASE MODULE SCRIPT
+     ======================================================= -->
+<script type="module">
+    // IMPORT FIREBASE v10
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // HIER DEINE FIREBASE CONFIG EINFÜGEN
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    const firebaseConfig = {
+        apiKey: "AIzaSyADAcQUu3oWQKCOF8bWl-SUcXbZXMbfzXc", // <-- Diesen Wert musst du auf der Firebase-Seite weiter unten noch kopieren!
+        authDomain: "spion-b4441.firebaseapp.com",
+        projectId: "spion-b4441",
+        storageBucket: "spion-b4441.appspot.com",
+        messagingSenderId: "923394943597",
+        appId: "1:923394943597:web:0dfb5d9cecdbe2196e6d64"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- STATE ---
+    let activeUser = JSON.parse(localStorage.getItem('ios_fb_active')) || null;
+    let dbCases =[]; // Wird jetzt live aus Firebase geladen!
     let isRegister = false;
     let activeCaseId = null;
     let kiTyping = null;
+    const adminUsers =["tae", "zynox"];
 
-    // Define Admins
-    const adminUsers = ["tae", "zynox"];
-
+    // ==========================================
+    // INITIALIZATION & REALTIME SYNC
+    // ==========================================
     window.onload = () => {
         if(activeUser) {
             document.getElementById('auth-view').classList.add('hidden');
             document.getElementById('main-view').classList.remove('hidden');
             updateUI(); 
-            renderDashboard();
+            
+            // FIREBASE LISTENER STARTEN
+            listenToCases();
         }
     };
 
-    function saveDB() {
-        localStorage.setItem('ios26_users', JSON.stringify(dbUsers));
-        localStorage.setItem('ios26_cases', JSON.stringify(dbCases));
-        localStorage.setItem('ios26_active', JSON.stringify(activeUser));
+    function listenToCases() {
+        onSnapshot(collection(db, "cases"), (snapshot) => {
+            dbCases =[];
+            snapshot.forEach((docSnap) => {
+                dbCases.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            renderDashboard();
+            
+            // Update offene Akte in Echtzeit
+            if (activeCaseId && document.getElementById('sheet-akte').classList.contains('active')) {
+                const updatedCase = dbCases.find(c => c.id === activeCaseId);
+                if (updatedCase) {
+                    renderEv(updatedCase);
+                } else {
+                    window.closeSheet('sheet-akte'); // Akte wurde von jemand anderem gelöscht
+                    window.showToast("Akte wurde vom Server entfernt.");
+                }
+            }
+        }, (error) => {
+            console.error("Firebase Sync Error:", error);
+            window.showToast("Verbindungsfehler zum Server.");
+        });
     }
 
     // ==========================================
-    // TOAST NOTIFICATIONS
+    // UI BINDINGS FÜR DAS WINDOW-OBJEKT
+    // (Damit HTML onclick="" funktioniert)
     // ==========================================
-    function showToast(msg) {
+    
+    window.showToast = (msg) => {
         const t = document.getElementById('toast');
-        t.innerHTML = msg; 
+        t.innerHTML = `<i class="fa-solid fa-server"></i> ${msg}`; 
         t.style.top = "60px";
         setTimeout(() => { t.style.top = "-100px"; }, 3000);
-    }
+    };
 
-    // ==========================================
-    // MODALS (iOS Sheets)
-    // ==========================================
-    function openSheet(id) {
+    window.openSheet = (id) => {
         document.body.classList.add('modal-open');
         document.getElementById(id).classList.add('active');
-    }
+    };
     
-    function closeSheet(id) {
+    window.closeSheet = (id) => {
         document.body.classList.remove('modal-open');
         document.getElementById(id).classList.remove('active');
         if(id === 'sheet-akte') clearInterval(kiTyping); 
-    }
+    };
 
-    // ==========================================
-    // SEGMENTED CONTROL LOGIC
-    // ==========================================
-    function setSeverity(index, value) {
+    window.setSeverity = (index, value) => {
         document.getElementById('case-severity').value = value;
         document.getElementById('seg-bg').style.transform = `translateX(${index * 100}%)`;
         for(let i=0; i<3; i++) {
@@ -522,45 +554,64 @@
             if(i === index) el.classList.add('active');
             else el.classList.remove('active');
         }
-    }
+    };
 
-    // ==========================================
-    // AUTHENTICATION
-    // ==========================================
-    function toggleAuthMode() {
+    window.toggleAuthMode = () => {
         isRegister = document.getElementById('auth-toggle').checked;
         document.getElementById('auth-title').innerText = isRegister ? "Registrierung" : "SPION OS";
-        document.getElementById('auth-sub').innerText = isRegister ? "Neues Agenten-Profil anlegen" : "Identifikation erforderlich";
+        document.getElementById('auth-sub').innerText = isRegister ? "Neues Agenten-Profil anlegen" : "Firebase Server Access";
         document.getElementById('auth-btn').innerText = isRegister ? "Account erstellen" : "System betreten";
-    }
+    };
 
-    function handleAuth() {
+    window.handleAuth = async () => {
         const name = document.getElementById('auth-name').value.trim();
         const pass = document.getElementById('auth-pass').value.trim();
-        if(!name || !pass) { showToast("Daten unvollständig."); return; }
+        if(!name || !pass) { window.showToast("Daten unvollständig."); return; }
 
-        if(isRegister) {
-            if(dbUsers.find(u => u.name.toLowerCase() === name.toLowerCase())) { showToast("Agent existiert bereits."); return; }
-            const u = { name, pass, id: "SP-" + Math.floor(1000+Math.random()*9000), joined: new Date().toLocaleDateString('de-DE'), pic: "" };
-            dbUsers.push(u); activeUser = u;
-        } else {
-            const u = dbUsers.find(u => u.name.toLowerCase() === name.toLowerCase() && u.pass === pass);
-            if(!u) { showToast("Authentifizierung fehlgeschlagen."); return; }
-            activeUser = u;
+        window.showToast("Verbinde mit Server...");
+        const userRef = doc(db, "users", name.toLowerCase());
+
+        try {
+            const docSnap = await getDoc(userRef);
+            
+            if(isRegister) {
+                if(docSnap.exists()) { window.showToast("Agent existiert bereits."); return; }
+                const newUser = { name, pass, id: "SP-" + Math.floor(1000+Math.random()*9000), joined: new Date().toLocaleDateString('de-DE'), pic: "" };
+                await setDoc(userRef, newUser);
+                activeUser = newUser;
+                window.showToast("Account generiert.");
+            } else {
+                if(!docSnap.exists()) { window.showToast("Agent nicht gefunden."); return; }
+                const userData = docSnap.data();
+                if(userData.pass !== pass) { window.showToast("Authentifizierung fehlgeschlagen."); return; }
+                activeUser = userData;
+                window.showToast("Zugriff gewährt.");
+            }
+            
+            localStorage.setItem('ios_fb_active', JSON.stringify(activeUser));
+            updateUI();
+            
+            // Start listening to live data
+            listenToCases();
+            
+            const auth = document.getElementById('auth-view');
+            auth.style.transform = 'scale(1.1)'; auth.style.opacity = '0';
+            setTimeout(() => {
+                auth.classList.add('hidden');
+                document.getElementById('main-view').classList.remove('hidden');
+            }, 400);
+
+        } catch (error) {
+            console.error(error);
+            window.showToast("Serverfehler.");
         }
-        
-        saveDB(); updateUI();
-        
-        const auth = document.getElementById('auth-view');
-        auth.style.transform = 'scale(1.1)'; auth.style.opacity = '0';
-        setTimeout(() => {
-            auth.classList.add('hidden');
-            document.getElementById('main-view').classList.remove('hidden');
-            renderDashboard(); showToast("Willkommen, " + activeUser.name);
-        }, 400);
-    }
+    };
 
-    function logout() { activeUser = null; saveDB(); location.reload(); }
+    window.logout = () => {
+        activeUser = null; 
+        localStorage.removeItem('ios_fb_active'); 
+        location.reload(); 
+    };
 
     function updateUI() {
         document.getElementById('wallet-name').innerText = activeUser.name;
@@ -572,56 +623,61 @@
         }
     }
 
-    function saveSettings() {
+    window.saveSettings = () => {
         const file = document.getElementById('up-pic').files[0];
         if(file) {
             const r = new FileReader();
-            r.onload = (e) => {
-                activeUser.pic = e.target.result;
-                const idx = dbUsers.findIndex(u => u.name === activeUser.name);
-                if(idx > -1) dbUsers[idx].pic = e.target.result;
-                saveDB(); updateUI(); closeSheet('sheet-profile'); showToast("Profil aktualisiert.");
+            r.onload = async (e) => {
+                try {
+                    // ACHTUNG: Bilder als Base64 in Firestore können groß sein (Max 1MB pro Dokument).
+                    const base64pic = e.target.result;
+                    await updateDoc(doc(db, "users", activeUser.name.toLowerCase()), { pic: base64pic });
+                    activeUser.pic = base64pic;
+                    localStorage.setItem('ios_fb_active', JSON.stringify(activeUser));
+                    updateUI(); 
+                    window.closeSheet('sheet-profile'); 
+                    window.showToast("Profil aktualisiert.");
+                } catch(error) {
+                    window.showToast("Fehler. Bild evtl. zu groß.");
+                }
             };
             r.readAsDataURL(file);
-        } else closeSheet('sheet-profile');
-    }
+        } else window.closeSheet('sheet-profile');
+    };
 
-    // ==========================================
-    // TAB SWITCHING
-    // ==========================================
-    function switchTab(t) {
+    window.switchTab = (t) => {
         document.getElementById('tab-dashboard').classList.add('hidden');
         document.getElementById('tab-create').classList.add('hidden');
-        
         const target = document.getElementById('tab-' + t);
         target.classList.remove('hidden');
         target.style.animation = 'none'; target.offsetHeight; 
         target.style.animation = 'fadeUp 0.6s var(--spring) forwards';
-    }
+    };
 
-    // ==========================================
-    // CASE MANAGEMENT (PIN & DELETE)
-    // ==========================================
-    function saveCase() {
+    window.saveCase = async () => {
         const title = document.getElementById('case-title').value.trim();
         const data = document.getElementById('case-data').value.trim();
         const sev = document.getElementById('case-severity').value;
-        if(!title || !data) { showToast("Bitte Formular ausfüllen."); return; }
+        if(!title || !data) { window.showToast("Bitte Formular ausfüllen."); return; }
 
-        dbCases.unshift({
-            id: 'CASE-'+Date.now(), title, data, severity: sev,
-            creator: activeUser.name, time: new Date().toLocaleDateString('de-DE'), ev:[],
-            pinned: false
-        });
-        saveDB();
-        
-        document.getElementById('case-title').value = ""; 
-        document.getElementById('case-data').value = "";
-        setSeverity(0, 'Standard');
+        const caseId = 'CASE-'+Date.now();
+        const newCase = {
+            title, data, severity: sev, creator: activeUser.name, 
+            time: new Date().toLocaleDateString('de-DE'), ev:[], pinned: false
+        };
 
-        showToast("Akte gesichert."); 
-        renderDashboard(); switchTab('dashboard');
-    }
+        window.showToast("Verschlüssele...");
+        try {
+            await setDoc(doc(db, "cases", caseId), newCase);
+            document.getElementById('case-title').value = ""; 
+            document.getElementById('case-data').value = "";
+            window.setSeverity(0, 'Standard');
+            window.showToast("Akte gesichert."); 
+            window.switchTab('dashboard');
+        } catch(e) {
+            window.showToast("Speichern fehlgeschlagen.");
+        }
+    };
 
     function renderDashboard() {
         const filter = document.getElementById('search-input').value.toLowerCase();
@@ -630,7 +686,6 @@
         
         let arr = dbCases.filter(c => c.title.toLowerCase().includes(filter));
         
-        // SORTING: Pinned cases to the top
         let pinned = arr.filter(c => c.pinned);
         let unpinned = arr.filter(c => !c.pinned);
         arr = [...pinned, ...unpinned];
@@ -657,9 +712,9 @@
         });
     }
 
-    function filterCases() { renderDashboard(); }
+    window.filterCases = () => { renderDashboard(); };
 
-    function openAkte(id) {
+    window.openAkte = (id) => {
         activeCaseId = id; const c = dbCases.find(x => x.id === id);
         
         document.getElementById('m-title').innerText = c.title;
@@ -668,7 +723,6 @@
         document.getElementById('m-data').innerText = c.data;
         document.getElementById('m-badges').innerHTML = `<span class="badge ${c.severity==='Kritisch'?'red':''}">${c.severity}</span>`;
         
-        // --- ADMIN & OWNER ACTIONS ---
         const uName = activeUser.name.toLowerCase();
         const isAdmin = adminUsers.includes(uName);
         const isOwner = c.creator.toLowerCase() === uName;
@@ -679,7 +733,6 @@
         
         if(isAdmin || isOwner) {
             adminBox.classList.remove('hidden');
-            
             if(isAdmin) {
                 const pinText = c.pinned ? 'Von Pinnwand entfernen' : 'Anpinnen';
                 actionBtns.innerHTML += `<button class="btn btn-warning" style="font-size: 14px; padding: 8px 16px;" onclick="togglePinCase()"><i class="fa-solid fa-thumbtack"></i> ${pinText}</button>`;
@@ -690,34 +743,29 @@
         }
         
         document.getElementById('ki-box').classList.add('hidden');
-        clearInterval(kiTyping); renderEv(); openSheet('sheet-akte');
-    }
+        clearInterval(kiTyping); 
+        renderEv(c); 
+        window.openSheet('sheet-akte');
+    };
 
-    function togglePinCase() {
+    window.togglePinCase = async () => {
         const c = dbCases.find(x => x.id === activeCaseId);
         if(c) {
-            c.pinned = !c.pinned;
-            saveDB();
-            openAkte(activeCaseId); // Refresh modal buttons
-            renderDashboard(); // Refresh grid
-            showToast(c.pinned ? "Akte angepinnt." : "Akte gelöst.");
+            const newState = !c.pinned;
+            await updateDoc(doc(db, "cases", activeCaseId), { pinned: newState });
+            window.showToast(newState ? "Akte angepinnt." : "Akte gelöst.");
         }
-    }
+    };
 
-    function deleteCase() {
-        if(confirm("Warnung: Diese Akte wird permanent gelöscht. Fortfahren?")) {
-            dbCases = dbCases.filter(x => x.id !== activeCaseId);
-            saveDB();
-            closeSheet('sheet-akte');
-            renderDashboard();
-            showToast("Akte erfolgreich gelöscht.");
+    window.deleteCase = async () => {
+        if(confirm("Warnung: Diese Akte wird permanent vom Server gelöscht. Fortfahren?")) {
+            await deleteDoc(doc(db, "cases", activeCaseId));
+            window.closeSheet('sheet-akte');
+            window.showToast("Akte erfolgreich gelöscht.");
         }
-    }
+    };
 
-    // ==========================================
-    // DETAILED AI SIMULATION
-    // ==========================================
-    function runKI() {
+    window.runKI = () => {
         const c = dbCases.find(x => x.id === activeCaseId);
         const box = document.getElementById('ki-box');
         const textEl = document.getElementById('ki-text');
@@ -735,34 +783,37 @@ Führender Agent: ${c.creator}
 
 [STRUKTURELLE DATEN]
 Der vorliegende Datensatz umfasst ${c.data.split(' ').length} Knotenpunkte und ${c.data.length} Zeichen. Die Informationsdichte erfordert fortgeschrittene Überwachungsprotokolle gemäß Systemrichtlinie Alpha-7.[INHALTLICHE ZUSAMMENFASSUNG]
-${c.data.substring(0, 250)}${c.data.length > 250 ? '...' : ''}[SYSTEM-BEWERTUNG]
-Basierend auf den vorliegenden semantischen Indikatoren wird dringend empfohlen, die Observierung entsprechend der Stufe "${c.severity}" fortzuführen. Potenzielle Vektoren wurden im Hintergrundnetzwerk markiert und an die entsprechenden Sicherheitseinheiten weitergeleitet.
+${c.data.substring(0, 250)}${c.data.length > 250 ? '...' : ''}
 
-[ANALYSE ABGESCHLOSSEN]`;
+[SYSTEM-BEWERTUNG]
+Basierend auf den vorliegenden semantischen Indikatoren wird dringend empfohlen, die Observierung entsprechend der Stufe "${c.severity}" fortzuführen. Potenzielle Vektoren wurden im Hintergrundnetzwerk markiert und an die entsprechenden Sicherheitseinheiten weitergeleitet.[ANALYSE ABGESCHLOSSEN]`;
 
             textEl.innerText = ""; let i=0;
             kiTyping = setInterval(() => {
                 textEl.innerText += txt[i++];
                 if(i >= txt.length) clearInterval(kiTyping);
-            }, 10); // Fast typing for long text
+            }, 10); 
         }, 600);
-    }
+    };
 
-    // ==========================================
-    // EVIDENCE & LOGS
-    // ==========================================
-    function addEvidence() {
+    window.addEvidence = async () => {
         const txt = document.getElementById('ev-txt').value.trim();
         const file = document.getElementById('ev-file').files[0];
-        if(!txt && !file) { showToast("Bitte Text oder Bild wählen."); return; }
+        if(!txt && !file) { window.showToast("Bitte Text oder Bild wählen."); return; }
         
-        const save = (media=null) => {
-            dbCases.find(x => x.id === activeCaseId).ev.push({ 
+        window.showToast("Übertrage zum Server...");
+        const save = async (media=null) => {
+            const c = dbCases.find(x => x.id === activeCaseId);
+            const newEv =[...c.ev, { 
                 text: txt, media, user: activeUser.name, 
                 time: new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}) 
-            });
-            saveDB(); renderEv(); 
-            document.getElementById('ev-txt').value=""; document.getElementById('ev-file').value="";
+            }];
+            try {
+                await updateDoc(doc(db, "cases", activeCaseId), { ev: newEv });
+                document.getElementById('ev-txt').value=""; document.getElementById('ev-file').value="";
+            } catch(e) {
+                window.showToast("Fehler. Bild evtl. zu groß (Max 1MB).");
+            }
         };
 
         if(file) { 
@@ -770,19 +821,18 @@ Basierend auf den vorliegenden semantischen Indikatoren wird dringend empfohlen,
             r.onload = e => save(e.target.result); 
             r.readAsDataURL(file); 
         } else save();
-    }
+    };
 
-    function renderEv() {
-        const c = dbCases.find(x => x.id === activeCaseId);
+    function renderEv(caseObj) {
         const list = document.getElementById('evidence-list'); 
         list.innerHTML = "";
         
-        if(c.ev.length === 0) {
+        if(!caseObj || caseObj.ev.length === 0) {
             list.innerHTML = "<div class='list-group'><div class='list-item' style='color: var(--sys-sec);'>Keine Protokolle vorhanden.</div></div>";
             return;
         }
 
-        c.ev.forEach((e, i) => {
+        caseObj.ev.forEach((e, i) => {
             let img = e.media ? `<img src="${e.media}" class="evidence-img">` : "";
             list.innerHTML += `
                 <div class="list-group" style="padding: 20px; margin-bottom: 16px;">
@@ -790,18 +840,20 @@ Basierend auf den vorliegenden semantischen Indikatoren wird dringend empfohlen,
                         <strong style="font-size:16px;">${e.user}</strong>
                         <span style="font-size:13px; color:var(--sys-sec);">${e.time}</span>
                     </div>
-                    <div style="font-size:16px; line-height:1.5;">${e.text}</div>
+                    <div style="font-size:16px; line-height:1.5; white-space:pre-wrap;">${e.text}</div>
                     ${img}
-                    ${e.user === activeUser.name ? `<div style="text-align:right; margin-top:15px;"><button class="btn btn-danger" style="font-size: 14px; padding: 6px 16px;" onclick="delEv(${i})">Löschen</button></div>` : ''}
+                    ${e.user === activeUser.name ? `<div style="text-align:right; margin-top:15px;"><button class="btn btn-danger" style="font-size: 14px; padding: 6px 16px;" onclick="delEv(${i})"><i class="fa-solid fa-trash"></i> Löschen</button></div>` : ''}
                 </div>
             `;
         });
     }
     
-    function delEv(i) { 
-        dbCases.find(x => x.id === activeCaseId).ev.splice(i,1); 
-        saveDB(); renderEv(); 
-    }
+    window.delEv = async (i) => { 
+        const c = dbCases.find(x => x.id === activeCaseId);
+        const newEv = [...c.ev];
+        newEv.splice(i, 1);
+        await updateDoc(doc(db, "cases", activeCaseId), { ev: newEv });
+    };
 </script>
 </body>
 </html>
