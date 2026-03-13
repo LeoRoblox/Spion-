@@ -462,12 +462,13 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // HIER DEINE FIREBASE CONFIG EINFÜGEN
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     const firebaseConfig = {
-        apiKey: "AIzaSyADAcQUu3oWQKCOF8bWl-SUcXbZXMbfzXc", // <-- Diesen Wert musst du auf der Firebase-Seite weiter unten noch kopieren!
+        apiKey: "DEIN_API_KEY_HIER_EINTRAGEN", // <-- WICHTIG: Nicht vergessen, den echten Key einzutragen!
         authDomain: "spion-b4441.firebaseapp.com",
+        databaseURL: "https://spion-b4441-default-rtdb.europe-west1.firebasedatabase.app/", // <-- HIER IST DIE DATABASE URL
         projectId: "spion-b4441",
         storageBucket: "spion-b4441.appspot.com",
         messagingSenderId: "923394943597",
